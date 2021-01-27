@@ -1,0 +1,16 @@
+---
+layout: post
+title: Github for Mac cookbook
+published: true
+categories: [github, osx, chef]
+---
+<p>Earlier today, GitHub <a href="https://github.com/blog/878-announcing-github-for-mac" title="GitHub for Mac Announcement" target="_blank">released</a> their native <a href="http://mac.github.com" title="GitHub for Mac" target="_blank">OS X client application</a>. As I automate <a href="https://twitter.com/#!/jtimberman/status/73450718429847552" target="_blank">everything</a> on my <a href="http://jtimberman.posterous.com/managing-my-workstations-with-chef">Macs with Chef</a>, I wrote a <a href="http://ckbk.it/ghmac">cookbook for Github for Mac</a>.</p>
+<p>In my chef-repo I did:</p>
+<div class="CodeRay">
+  <div class="code"><pre>knife cookbook site install ghmac
+knife cookbook upload ghmac
+#... add 'recipe[ghmac]' to my workstation role ...
+knife ssh role:workstation 'source .rvm/scripts/rvm &amp;&amp; chef-client'</pre></div>
+</div>
+
+<p>Since my Mac OS X workstations all have role[workstation], they all got GitHub for Mac installed automatically. I did have to do the configuration steps through the UI, and that made me cry a little, but I got over it. The application itself is quite nice.</p>

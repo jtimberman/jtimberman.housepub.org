@@ -1,0 +1,12 @@
+---
+layout: post
+title: Specify Chef Run List at Command Line to Vagrant Up
+published: true
+categories: [virtualization, chef, development]
+---
+<p>I wanted to dynamically set my run list for testing with Vagrant without editing the Vagrantfile. Since the Vagrantfile is just Ruby, and the run list is an array, I can split a string into an array and use it.</p>
+<p><script src="https://gist.github.com/1088459.js"></script></p>
+<p>If I don't specify the run list, it will still configure the node with my base Ubuntu configuration. Then bring up a Vagrant box with a comma separated string of items in the run list.</p>
+<div class="CodeRay">
+  <div class="code"><pre>% CHEF_RUN_LIST=&quot;role[ubuntu],recipe[apache2]&quot; vagrant up</pre></div>
+</div>

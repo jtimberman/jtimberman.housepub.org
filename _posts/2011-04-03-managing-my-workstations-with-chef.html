@@ -1,0 +1,68 @@
+---
+layout: post
+title: Managing My Workstations with Chef
+published: true
+categories: [oldstuff, chef, workstations, osx]
+---
+<p><em>Update: This post is old and outdated.</em></p>
+<p><em>Update: <a href="http://jtimberman.posterous.com/update-to-managing-my-workstations">New cookbook, Lion and more</a>!</em></p>
+<p>This post describes how I use <a href="http://wiki.opscode.com/display/chef/Home" title="Chef Wiki" target="_blank">Chef</a> and&nbsp;<a href="http://opscode.com/platform/" title="Opscode Platform" target="_blank">Opscode Hosted Chef</a>&nbsp;to manage my workstations, Apple Macbooks. I have three:</p>
+<ul>
+<li>Company issued Macbook Pro</li>
+<li>Personal Macbook Air</li>
+<li>Family Macbook Pro</li>
+</ul>
+<p>Note that while I do use this on my work laptop, Opscode has a different set of recipes to set up development and internal company workstations. At some point there may be a post on the <a href="http://www.opscode.com/blog" title="Opscode Blog" target="_blank">Opscode Blog</a>.</p>
+<p>Before I get started with Chef itself, I have to install a few things to "bootstrap" the systems to be ready. I'm not going to include the commands to install all these "pre-requisites", as you can learn how to do that from their respective web sites.</p>
+<p><strong><span style="font-size: x-large;">Xcode 3.2 (or 4.0)</span></strong></p>
+<p>I wish I could purchase a Macbook with Xcode preinstalled. In fact, I would pay $50 to have this over iLife on new machines, so the $5 cost for version 4 is really minor. However, I don't have any use for whatever 4.0 has to offer, since I only want Xcode because its the most sane way to get GCC and friends on OSX.</p>
+<p><a href="http://developer.apple.com/xcode/">http://developer.apple.com/xcode/</a></p>
+<p><strong><span style="font-size: x-large;">Ruby Version Manager</span></strong></p>
+<p>I want to use Ruby 1.9.2 instead of the default that comes with OSX, and RVM makes it easy to do that. I also like the gemset feature, which allows me to sandbox and play with various configurations of RubyGems.</p>
+<p><a href="http://rvm.beginrescueend.com">http://rvm.beginrescueend.com</a></p>
+<p><strong><span style="font-size: x-large;">Chef</span></strong></p>
+<p>I generally just install the latest released Chef gem from RubyGems.org once I have Ruby installed.</p>
+<p><a href="https://rubygems.org/gems/chef">https://rubygems.org/gems/chef</a></p>
+<p>Once Chef itself is installed, it's time to get cooking! I have the following already set up:</p>
+<ul>
+<li>Opscode Community <a href="http://community.opscode.com/users/jtimberman" title="Joshua Timberman" target="_blank">userid</a>.</li>
+<li>Opscode Hosted Chef organization.</li>
+<li>Chef Repository</li>
+</ul>
+<p>Let's take a look at what I put into the Chef Repository to configure my workstations. First, I created the repository and the listed components, then I upload everything to my Opscode Hosted Chef organization.</p>
+<p><span style="font-size: x-large;"><strong>Cookbooks</strong></span></p>
+<p>I have a number of cookbooks for my personal repository, but the relevant ones for workstations are:</p>
+<ul>
+<li><a href="http://community.opscode.com/cookbooks/dmg" title="dmg cookbook" target="_blank">dmg</a></li>
+<li><a href="http://community.opscode.com/cookbooks/homebrew" title="homebrew cookbook" target="_blank">homebrew</a></li>
+<li>workstation</li>
+</ul>
+<p>I wrote the dmg cookbook to automatically install OSX applications that are delivered to users via DMGs. After writing cookbooks for skype, and tunnelblick, I noticed some common patterns and abstracted those out to a lightweight resource and provider, "dmg_package". This does the heavy lifting of:</p>
+<ol>
+<li>Retrieve a .dmg file from a remote URL.</li>
+<li>Mount the disk image.</li>
+<li>Copy the .app directory to /Applications.</li>
+<li>Unmount the disk image.</li>
+</ol>
+<p>The homebrew cookbook was written by&nbsp;<span style="line-height: 14px; color: #000000;"><a href="http://community.opscode.com/users/mathie" title="Graeme Mathieson" target="_blank">Graeme Mathieson</a>, and it will install Homebrew in /usr/local and use it as the default package provider on OSX.</span></p>
+<p><span style="line-height: 14px; color: #000000;">Both the dmg and homebrew cookbooks were downloaded to my local chef-repo with the "vendor" pattern supported by knife.</span></p>
+<p><span style="line-height: 14px; color: #000000;">The workstation cookbook consists of a number of recipes. Many of them contain commands lifted from Pivotal Labs experimental GitHub repository, <a href="https://github.com/pivotalexperimental/wschef" title="Pivotal Labs Experimental Chef Workstation Recipes" target="_blank">wschef</a>. I don't use any of the scaffolding they wrote in that repository, but I grabbed lots of the executes. However, that repository <a href="https://github.com/pivotalexperimental/wschef/issues/3" title="No License for redistribution of wschef recipes" target="_blank">does not have any mention of a license</a>, so I haven't published the workstation cookbook I use. I can publish the recipe I wrote, which will be part of the cookbook when the license of their recipes is sorted out.</span></p>
+<p><script src="https://gist.github.com/901008.js"></script></p>
+<p><span style="font-size: x-large;"><strong>Roles</strong></span></p>
+<p>I use two roles on my workstations that tell Chef what recipes to apply. First, is role[mac_os_x]:</p>
+<p><script src="https://gist.github.com/901013.js"></script></p>
+<p>Next is the actual workstation recipe.</p>
+<p><script src="https://gist.github.com/901012.js"></script></p>
+<p><strong><span style="font-size: x-large;">Data Bags</span></strong></p>
+<p>Chef is data driven, and I have written a data bag item for my workstation. It simply lists the gems, dmg's and packages to install with the above recipe.</p>
+<p><script src="https://gist.github.com/901009.js"></script></p>
+<p><strong><span style="font-size: x-large;">Client Configuration</span></strong></p>
+<p>I run Chef as my normal user, so it will need to be able to write out cache and other files in a location my user has write access. I replace "workstation_hostname" for the node name depending on the host. For example, doppelbock is the hostname and node name of my Macbook Air.</p>
+<p><script src="https://gist.github.com/901065.js"></script></p>
+<p><span style="font-size: x-large;"><strong>Nodes</strong></span></p>
+<p>I use the following run list on my workstations.</p>
+<p><script src="https://gist.github.com/901014.js"></script></p>
+<p><span style="font-size: x-large;"><strong>Upload Chef Repository</strong></span></p>
+<p>Now that all the victims are assembled, it is time to upload the Chef repository, copy the configuration file and validation certificate and run Chef.</p>
+<p><script src="https://gist.github.com/901076.js"></script></p>
+<p>Then I simply run 'chef-client' as my normal user and my laptop is configured. It does take some time because several of the DMGs are large, and homebrew compiles from source. All in all, it took about 1 hour to do the initial run of Chef on my Macbook Air 13" when I first set it up.</p>

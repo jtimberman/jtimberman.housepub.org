@@ -1,0 +1,40 @@
+---
+layout: post
+title: Installing Virtualbox on OSX with Chef
+published: true
+categories: [chef, osx, virtualization]
+---
+<p>There's a rumor floating around that I automate everything on my laptop with Chef, including <a href="https://twitter.com/#!/jtimberman/status/73450718429847552" target="_blank">window maximizing</a>. While that's not entirely true, I do automate as much as possible on my <a href="http://jtimberman.posterous.com/managing-my-workstations-with-chef" target="_blank">workstations with Chef</a>, as I have three laptops I use regularly. One application I like to have installed is VirtualBox, because I do some Chef recipe testing with it and <a href="http://vagrantup.com" target="_blank">Vagrant</a>.</p>
+<p>I did the most natural thing ever, I wrote a cookbook to automate installation of VirtualBox on OS X. The disk image file that Oracle distributes for VirtualBox on OSX uses an "mpkg" installer package, so I couldn't just use the dmg_package LWRP I wrote to install it in /Applications. I extended the dmg_package provider to allow a type to be specified and pushed a new release of the <a href="http://community.opscode.com/cookbooks/dmg" target="_blank">dmg cookbook (v.0.6.0)</a>. The recipe in my cookbook builds the URL, which may seem convoluted (maybe it is), but it makes it more dynamic and customizable with fewer assumptions. The actual usage looks like this:</p>
+<p><script src="https://gist.github.com/997134.js"></script></p>
+<p>One thing to note about the mpkg type, is that these generally want to install in /Applications, which often requires root privileges. The dmg_package LWRP will use sudo when performing the mpkg installation, so if you're like my and want to run chef-client as a non-root user for most things, it will prompt for your password, unless you unlock sudo in the same shell. Output of VirtualBox being installed:</p>
+<p><code>
+<div class="CodeRay">
+  <div class="code"><pre>INFO: Processing dmg_package[Virtualbox] action install (virtualbox::default line 41)
+INFO: Processing remote_file[/Users/jtimberman/.chef/cache/Virtualbox.dmg] action create (/Users/jtimberman/.chef/cache/cookbooks/dmg/providers/package.rb line 36)
+INFO: Processing execute[hdid /Users/jtimberman/.chef/cache/Virtualbox.dmg] action run (/Users/jtimberman/.chef/cache/cookbooks/dmg/providers/package.rb line 42)
+INFO: execute[hdid /Users/jtimberman/.chef/cache/Virtualbox.dmg] sh(hdid /Users/jtimberman/.chef/cache/Virtualbox.dmg)
+/dev/disk1                  Apple_partition_scheme
+/dev/disk1s1                Apple_partition_map
+/dev/disk1s2                Apple_HFS                              /Volumes/VirtualBox
+INFO: execute[sudo installer -pkg /Volumes/Virtualbox/Virtualbox.mpkg -target /] sh(sudo installer -pkg /Volumes/Virtualbox/Virtualbox.mpkg -target /)
+Password: &lt;-- unlock sudo before running to avoid this prompt. &quot;sudo -l&quot; should be sufficient.
+installer: Package name is Oracle VM VirtualBox
+installer: Upgrading at base path /
+installer: The upgrade was successful.
+INFO: execute[hdiutil detach '/Volumes/Virtualbox'] sh(hdiutil detach '/Volumes/Virtualbox')
+&quot;disk1&quot; unmounted.
+&quot;disk1&quot; ejected.
+INFO: Processing file[/Applications/Virtualbox.app/Contents/MacOS/Virtualbox] action create (/Users/jtimberman/.chef/cache/cookbooks/dmg/providers/package.rb line 55)
+ERROR: file[/Applications/Virtualbox.app/Contents/MacOS/Virtualbox] (/Users/jtimberman/.chef/cache/cookbooks/dmg/providers/package.rb line 55) had an error: Operation not permitted - /Applications/Virtualbox.app/Contents/MacOS/Virtualbox
+INFO: Chef Run complete in 36.219113 seconds
+INFO: Running report handlers
+INFO: Resources updated this run:
+INFO:   execute[hdid /Users/jtimberman/.chef/cache/Virtualbox.dmg]
+INFO:   execute[sudo installer -pkg /Volumes/Virtualbox/Virtualbox.mpkg -target /]
+INFO:   execute[hdiutil detach '/Volumes/Virtualbox']
+INFO: Report handlers complete</pre></div>
+</div>
+
+</code></p>
+<p>After writing and testing, the next thing I wanted to do is share the cookbook on the Opscode Chef Community site. However, I discovered that the good Chris Peplin already shared one! Since the site has a flat namespace, I would have to name mine differently. However, I think it would be better to collaborate in true Open Source fashion with Chris, and we'll collaborate on this.&nbsp;</p>

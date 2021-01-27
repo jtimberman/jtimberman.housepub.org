@@ -1,0 +1,87 @@
+---
+layout: post
+title: Encrypted Data Bag for Postfix SASL Authentication
+published: true
+categories: [chef, security]
+---
+<p>I recently had a chance to sit down and implemented an encrypted data bag in my personal environment. This should translate nicely to anyone that wants to use encrypted data bags in their environment.</p>
+<h3>The use case</h3>
+<p>I send mail out through an SASL authenticated SMTP server. My local network has a postfix SMTP relay that connects to the SASL auth relay. I'm using the Opscode postfix cookbook with the sasl_auth recipe, since I wrote it originally for this use case.</p>
+<p>The <a href="https://github.com/opscode/cookbooks/blob/master/postfix/recipes/sasl_auth.rb">postfix::sasl_auth recipe</a> is applied in an "operations master" role. The attributes for configuring the user and password for SASL are attributes. Relevant lines from the role:</p>
+<div class="CodeRay">
+  <div class="code"><pre>name &quot;ops_master&quot;
+run_list(&quot;recipe[postfix::sasl_auth]&quot;)
+override_attributes(
+  &quot;postfix&quot; =&gt; {
+    &quot;relayhost&quot; =&gt; &quot;[smtp.example.com]:587&quot;,
+    &quot;smtp_sasl_auth_enable&quot; =&gt; &quot;yes&quot;,
+    &quot;smtp_sasl_passwd&quot; =&gt; &quot;AWESOME!!&quot;,
+    &quot;smtp_sasl_user_name&quot; =&gt; &quot;MYUSER&quot;
+  }
+)</pre></div>
+</div>
+
+<h3>Encrypted Secrets</h3>
+<p>Chef's data bags are a great way to store infrastructure wide, but not role or node specific information. <a href="http://wiki.opscode.com/display/chef/Encrypted+Data+Bags"><em>Encrypted</em> data bags</a> are a great way to store sensitive information, like passwords. Here are the steps I followed to get the encrypted data bag set up.</p>
+<p>First, I created the secret key file that is used to encrypt the contents of the data bag item. This file will not be stored in source control, as it is highly sensitive, and only gets copied to the systems that need it.</p>
+<div class="CodeRay">
+  <div class="code"><pre>openssl rand -base64 512 &gt; ~/.chef/encrypted_data_bag_secret</pre></div>
+</div>
+
+<p>Next, I created the actual data bag.</p>
+<div class="CodeRay">
+  <div class="code"><pre>knife data bag create secrets</pre></div>
+</div>
+
+<p>Next I created the data bag item using the secret key. This is created directly on the Chef Server, rather than a plain text file.</p>
+<div class="CodeRay">
+  <div class="code"><pre>knife data bag create secrets postfix --secret-file ~/.chef/encrypted_data_bag_secret</pre></div>
+</div>
+
+<p>I'm not saving the plaintext data bag item, but will store the encrypted item, so I'll retrieve it from the Chef Server and redirect the output to a JSON file.</p>
+<div class="CodeRay">
+  <div class="code"><pre>mkdir data_bags/secrets
+knife data bag show secrets postfix -Fj &gt; data_bags/secrets/postfix.json
+cat data_bags/secrets/postfix.json
+{
+  &quot;id&quot;: &quot;postfix&quot;,
+  &quot;user&quot;: &quot;encrypted string here&quot;,
+  &quot;passwd&quot;: &quot;encrypted string here&quot;
+}</pre></div>
+</div>
+
+<p>The current recipe doesn't support using an encrypted data bag item, so I had to modify it. First, load the encrypted data bag item.</p>
+<div class="CodeRay">
+  <div class="code"><pre>postfix_creds = Chef::EncryptedDataBagItem.load(&quot;secrets&quot;,&quot;postfix&quot;,
+  Chef::EncryptedDataBagItem::DEFAULT_SECRET_FILE)</pre></div>
+</div>
+
+<p>This access the "secrets" data bag for the "postfix" item, and uses the default value for the secret key file (which is "/etc/chef/encrypted_data_bag_secret".</p>
+<p>Next, I update the sasl_passwd template to pass in the user and password from the data bag item.</p>
+<div class="CodeRay">
+  <div class="code"><pre>template &quot;/etc/postfix/sasl_passwd&quot; do
+  #...
+  variables(:smtp_sasl_passwd =&gt; smtp_sasl['passwd'],
+            :smtp_sasl_user_name =&gt; smtp_sasl['user'])
+  #...
+end</pre></div>
+</div>
+
+<p>Finally, the template is updated to use the new values.</p>
+<div class="CodeRay">
+  <div class="code"><pre>&lt;%= node[:postfix][:relayhost] %&gt; &lt;%= @smtp_sasl_user_name %&gt;:&lt;%= @smtp_sasl_passwd %&gt;</pre></div>
+</div>
+
+<p>After uploading the cookbook and the role (I removed the username and password), I copied the secret key file over to the node I needed to run Chef on, then ran Chef Client.</p>
+<div class="CodeRay">
+  <div class="code"><pre>sudo cat /etc/postfix/sasl_passwd
+[smtp.example.com]:587 MYUSER:AWESOME!!</pre></div>
+</div>
+
+<p>Yay!</p>
+<p>The full recipe is:</p>
+<p><script src="https://gist.github.com/1130006.js"></script></p>
+<p>The library file
+  (cookbooks/helper_libs/libraries/encrypted_data_bag_item.rb)
+  is: </p>
+<p><script src="https://gist.github.com/2364164.js"></script></p>

@@ -1,0 +1,17 @@
+---
+layout: post
+title: Display Chef Server Search Indexes
+published: true
+categories: [chef]
+---
+<p>Anyone who runs a Chef Server or uses Hosted Chef has a wealth of search indexes available to them for data stored on the server. However, there isn't a direct subcommand for displaying the search indexes. The following are automatically created on the server or Platform organization at creation and we know about them already:</p>
+<ul>
+<li>node</li>
+<li>role</li>
+<li>client</li>
+</ul>
+<p>Also, all data bags are created as a search index for the items they contain. All of these indexes are available through the API, and can be retrieved with Knife.</p>
+<p><script src="https://gist.github.com/915019.js"></script></p>
+<div>This uses knife's "exec" sub-command. The subcommand takes a script argument, which is a Ruby script. It is executed in the context of the knife configuration, so if you have a .chef/knife.rb, it will be able to connect to a Chef Server. Let's look at the contents of this script, it's pretty simple.</div>
+<p><script src="https://gist.github.com/915020.js"></script></p>
+<p>The 'p' simply prints output of the argument. Then I'm calling the "get" method on the "api" object. This is a preconfigured object that knows how to talk to the Chef Server API through the aforementioned configuration. This takes an argument, which I pass the search API endpoint. The results that come back from the API are a Ruby hash, so I print out just the keys by calling the "keys" method. As we can see, I have a number of data bags in my environment, including DNS entries, users and Samba (shares and permissions for the curious).</p>
