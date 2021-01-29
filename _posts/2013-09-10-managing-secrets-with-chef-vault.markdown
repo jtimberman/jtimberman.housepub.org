@@ -7,7 +7,7 @@ categories: [chef, security]
 ---
 
 Two years ago, I wrote a post about
-[using Chef encrypted data bags](http://jtimberman.housepub.org/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/)
+[using Chef encrypted data bags](https://jtimberman.housepub.org/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/)
 for SASL authentication with Postfix. At the time, my ISP didn't allow
 non-authenticated SMTP, so I had to find a solution so I could get
 cronspam and other vital email from my servers at home. I've since

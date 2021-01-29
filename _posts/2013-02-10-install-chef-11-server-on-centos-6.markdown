@@ -7,7 +7,7 @@ categories: [chef, rhel]
 ---
 
 A few months ago, I posted briefly on
-[how to install Chef 10 server on CentOS](http://jtimberman.housepub.org/blog/2012/11/17/install-chef-10-server-on-centos/).
+[how to install Chef 10 server on CentOS](https://jtimberman.housepub.org/blog/2012/11/17/install-chef-10-server-on-centos/).
 This post revisits the process for Chef 11.
 
 These steps were performed on a default CentOS 6.3 server install.

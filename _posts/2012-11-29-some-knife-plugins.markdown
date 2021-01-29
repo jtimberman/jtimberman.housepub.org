@@ -60,7 +60,7 @@ knife metadata name dependencies -P ~/.berkshelf/cookbooks/rabbitmq-1.6.4
 
 ## nukular
 
-[I wrote on this blog about this plugin awhile ago](http://jtimberman.housepub.org/blog/2012/02/15/testing-with-fission/).
+[I wrote on this blog about this plugin awhile ago](https://jtimberman.housepub.org/blog/2012/02/15/testing-with-fission/).
 
 This plugin cleans up after running `chef-client` on a VMware Fusion machine.
 

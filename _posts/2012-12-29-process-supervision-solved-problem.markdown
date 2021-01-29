@@ -110,7 +110,7 @@ Next up, a common approach for running process is to start up screen
 terminal multiplexers. That is, they are "full-screen window
 manager[s] that multiplex a physical terminal between several
 processes." These are great tools, and
-[I use tmux](http://jtimberman.housepub.org/blog/2012/01/28/iterm2-with-tmux/)
+[I use tmux](https://jtimberman.housepub.org/blog/2012/01/28/iterm2-with-tmux/)
 for other reasons. However, this fails the criteria for the same
 reasons as nohup. Additionally, automating a process running in screen
 is not a simple task that can be repeated reliably.

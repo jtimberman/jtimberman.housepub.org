@@ -17,7 +17,7 @@ node.default['datadog']['api_key'] = 'Secrets In Plain Text Attributes??'
 node.default['datadog']['application_key'] = 'It is probably fine.'
 ```
 
-I prefer to use chef-vault because [I think it's the best way](http://jtimberman.housepub.org/blog/2013/09/10/managing-secrets-with-chef-vault/) to manage shared secrets in Chef recipes. I still need to set the attributes for Datadog's recipe to work, however. In order to accomplish the goal here, I will use a custom cookbook, `housepub-datadog`. It has one recipe that looks like this:
+I prefer to use chef-vault because [I think it's the best way](https://jtimberman.housepub.org/blog/2013/09/10/managing-secrets-with-chef-vault/) to manage shared secrets in Chef recipes. I still need to set the attributes for Datadog's recipe to work, however. In order to accomplish the goal here, I will use a custom cookbook, `housepub-datadog`. It has one recipe that looks like this:
 
 ```ruby
 include_recipe 'chef-vault'

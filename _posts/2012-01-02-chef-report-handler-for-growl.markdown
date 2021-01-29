@@ -45,7 +45,7 @@ workspace, and then know via growl if the instance was created.
 # Chef Handler
 
 As many know, I
-[manage my workstations with Chef](http://jtimberman.housepub.org/blog/2011/04/03/managing-my-workstations-with-chef/).
+[manage my workstations with Chef](https://jtimberman.housepub.org/blog/2011/04/03/managing-my-workstations-with-chef/).
 Chef has a pretty cool
 [exception and report handler API](http://wiki.opscode.com/display/chef/Exception+and+Report+Handlers)
 that has a lot of flexibility. I thought it would be fun to throw

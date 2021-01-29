@@ -227,7 +227,7 @@ What a wonderful redundant distributed key value store :-).
 
 Note that the `encrypted_data_bag_item` method used in the recipe is in a cookbook
 library. I wrote about that in an
-[earlier blog post](http://jtimberman.housepub.org/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/).
+[earlier blog post](https://jtimberman.housepub.org/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/).
 It is pretty simple:
 
 ```ruby

@@ -7,7 +7,7 @@ categories: [emacs, chef]
 ---
 
 It is no secret that
-[I use GNU Emacs](http://jtimberman.housepub.org/blog/2011/05/06/switching-to-gnu-emacs/)
+[I use GNU Emacs](https://jtimberman.housepub.org/blog/2011/05/06/switching-to-gnu-emacs/)
 as my default text editor. It is perhaps less evident but no less
 relevant that I use Emacs 24. I really like the built-in color theme
 support and the package management system for getting the various

@@ -55,4 +55,4 @@ and systems that have SSDs as the root volume. This is very welcome
 change for me, especially since it means that future Mac OS X
 installations do not require a large download before I can start doing
 things that get my
-[system ready to use](http://jtimberman.housepub.org/blog/2011/04/03/managing-my-workstations-with-chef/).
+[system ready to use](https://jtimberman.housepub.org/blog/2011/04/03/managing-my-workstations-with-chef/).
