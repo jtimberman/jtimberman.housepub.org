@@ -31,6 +31,8 @@ github_username:  jtimberman
 
 # Build settings
 theme: minima
+minima:
+  skin: solarized
 plugins:
   - jekyll-feed
 
