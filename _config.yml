@@ -34,9 +34,6 @@ theme: minima
 plugins:
   - jekyll-feed
 
-disqus:
-  shortname: jtimberman
-
 google_analytics: UA-26031299-1
 show_excerpts: true
 permalink: "blog/:year/:month/:day/:title"
