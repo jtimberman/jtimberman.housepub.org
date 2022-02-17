@@ -1,0 +1,31 @@
+---
+layout: post
+title: Grief
+date: 2022-02-17 12:00 -0700
+---
+
+I realized something recently. I am undergoing profound work-related grief.
+
+I am still not done grieving and I am not over the sense of loss from putting my whole self, my heart and soul, and my entire career identity into Chef.
+
+If you'll indulge me, I would like to share some background.
+
+I have been doing system administration and system administration-adjacent work since I graduated college in 1999. I worked for a few companies before Chef (neé Opscode), but none that I cared for so deeply. None where I literally had the privilege of working alongside my two lifelong best friends and building something truly special.
+
+It all ended, in finality, when the acquisition of Chef by Progress was completed, and I was given my disposition from Progress. That is, I, along with my team (including one of the aforementioned best friends), had an offer to stay at the company for 120 days for a transition period, at the end of which our positions would be terminated.
+
+I had three days to accept this offer, and it was tied to various compensation mechanisms including severance and transition bonuses.
+
+I never felt more betrayed. I know that in the USA, we live in capitalism, and I know that mergers and acquisitions involve a variety of decisions that are made around eliminating redundancies, and similar.
+
+It doesn't change how I felt. How I still feel, really.
+
+As many people reading this will know, I was a part of Chef from the earliest days. I was one of the first deep experts in the theory behind it Chef (the software), the software itself, and how best to write cookbooks. I worked my tail off in the early days. I was doing "DevRel" before the term was coined. I was doing developer (or, system administrator/operations) advocacy and relations. I literally helped directly or indirectly transform the careers of hundreds, if not thousands of tech workers through my kindness, empathy, hugs, and encouragement in working to support users on IRC and mailing lists or answering questions at conferences. I met so many lovely and wonderful people, many of whom will be lifelong friends.
+
+I did all this and more, from July 2, 2008 until January 29, 2021. Even after I received my disposition (I accepted, of course), I didn't stop helping people be successful with Chef. My transition work was to help Progress spin up a new team of SREs to run and maintain Hosted Chef. Don't ask me why they decided to do this, it never made sense to me. Anyway, I worked with the team to ensure that all the bits and pieces of the infrastructure we managed were documented, and we created video guides about the various components. Every standup turned into an "AMA", and I answered everything I could in as much detail as I could, sometimes recording the Zoom meetings so the team could review or transcribe later.
+
+I helped the new manager interview, and design interviews to help hire new team members. I think I conducted a dozen technical interviews - the numbers blur with time, and overlap with my own interviewing for a position to move to after January 29th. In the end, I think the team hired four or five new SREs whom all had to be trained on the Hosted Chef infrastructure, and the supporting systems that we had responsbility to manage.
+
+Then on January 29th, tears streaking down my face, I performed the employee offboarding "SOP" (Standard Operating Procedure) that my team was responsible for one last time. I removed myself from the GitHub organizations (there were nine).  I removed myself from DockerHub and Vagrant Cloud. I removed my user from PagerDuty. I disabled my user in Okta. I signed out of Gmail, which I used since 2008, and from Slack which I used whenever Chef adopted it (2015 I think?), and removed all the associated accounts and/or apps from my phone. I rebooted the laptop to perform a complete wipe, then shut it down, and cried.
+
+I haven't stopped crying since, to be honest. 
