@@ -28,3 +28,4 @@ If you would like to support me, please make a donation in my name to one of the
 * [Planned Parenthood of the Rocky Mountains](https://www.weareplannedparenthood.org/cOJVhOyrzkq4uBcxVekXFA2?sourceid=1000065&affiliateID=090210)
 * [Black Girls Code](https://donorbox.org/support-black-girls-code)
 * [RAICES](https://www.raicestexas.org/ways-to-give/donate/)
+* [The Trevor Project](https://give.thetrevorproject.org/campaign/637912/donate)
