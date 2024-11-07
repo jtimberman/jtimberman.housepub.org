@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef Repository Berkshelf Conversion | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef Repository Berkshelf Conversion" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I’ve been managing my personal systems with Chef since Chef was created, though I didn’t always use the same chef-repo for them. For about two years though, I’ve used pretty much the same repository, which has grown and accumulated cruft over time. Fortunately since it’s only me working on it, and I only have a few systems, it is really easy to make drastic changes." />
+<meta property="og:description" content="I’ve been managing my personal systems with Chef since Chef was created, though I didn’t always use the same chef-repo for them. For about two years though, I’ve used pretty much the same repository, which has grown and accumulated cruft over time. Fortunately since it’s only me working on it, and I only have a few systems, it is really easy to make drastic changes." />
+<link rel="canonical" href="/blog/2012/11/19/chef-repository-berkshelf-conversion" />
+<meta property="og:url" content="/blog/2012/11/19/chef-repository-berkshelf-conversion" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-11-19T22:10:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef Repository Berkshelf Conversion" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"I’ve been managing my personal systems with Chef since Chef was created, though I didn’t always use the same chef-repo for them. For about two years though, I’ve used pretty much the same repository, which has grown and accumulated cruft over time. Fortunately since it’s only me working on it, and I only have a few systems, it is really easy to make drastic changes.","url":"/blog/2012/11/19/chef-repository-berkshelf-conversion","headline":"Chef Repository Berkshelf Conversion","@type":"BlogPosting","dateModified":"2012-11-19T22:10:00+00:00","datePublished":"2012-11-19T22:10:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/11/19/chef-repository-berkshelf-conversion"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef Repository Berkshelf Conversion</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-11-19T22:10:00+00:00" itemprop="datePublished">
+        Nov 19, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I’ve been managing my personal systems with Chef since Chef was
+created, though I didn’t always use the same chef-repo for them. For
+about two years though, I’ve used pretty much the same repository,
+which has grown and accumulated cruft over time. Fortunately since
+it’s only me working on it, and I only have a few systems, it is
+really easy to make drastic changes.</p>
+
+<p>I have a number of to do items that I’ve put off, so this weekend I
+decided to spend some time cleaning house, and convert the repository
+to have cookbooks managed by <a href="http://berkshelf.com/">Berkshelf</a>.</p>
+
+<h1 id="rationale">Rationale</h1>
+
+<p>There are other cookbook management tools, including the built in
+“<code class="language-plaintext highlighter-rouge">knife cookbook site install</code>”,
+<a href="https://github.com/applicationsonline/librarian">librarian-chef</a>, and
+<a href="https://github.com/kisoku/whisk">whisk</a>. I have used the knife
+command as long as it has existed, and it worked well for awhile. The
+buzz in the community since the
+<a href="http://wiki.opscode.com/display/chef/Opscode+Community+Summit+2">Chef Summit</a>
+has been around “library” vs “application” cookbooks, especially in
+conjunction with Berkshelf so I thought I’d give it a go.</p>
+
+<h1 id="before-berkshelf">Before Berkshelf</h1>
+
+<p>Before I started on this migration, here are some numbers about
+cookbooks in my chef-repo.</p>
+
+<ul>
+  <li>113 total cookbooks</li>
+  <li>33 “chef-vendor” branches (<code class="language-plaintext highlighter-rouge">knife cookbook site install</code> creates a
+branch for each cookbook)</li>
+  <li>50 “cookbook site” tags</li>
+</ul>
+
+<p>Overall, I had about a half dozen cookbooks that I actually modified
+from their “upstream” versions on the community site. Most of those
+customizations were adding munin plugins, changing a couple minor
+settings in a template, or long term workarounds that are actually
+fixed in the current released versions.</p>
+
+<h1 id="the-conversion">The Conversion</h1>
+
+<p>The conversion was fairly straight-forward. It required some preparation:</p>
+
+<ul>
+  <li>Determine the cookbooks that would be managed by Berkshelf.</li>
+  <li>Refactor customizations into “application” cookbooks or otherwise.</li>
+  <li>Remove all those cookbooks, and the completely unused cookbooks.</li>
+</ul>
+
+<h2 id="cookbooks-in-berkshelf">Cookbooks in Berkshelf</h2>
+
+<p>Determining the cookbooks that would be managed by Berkshelf was
+simple. I started with all the cookbooks that had been installed via
+<code class="language-plaintext highlighter-rouge">knife cookbook site install</code>. Since the command creates a branch for
+each one, I had a nice list already. I did review that for cookbooks I
+know I wasn’t using anymore, or didn’t plan to use for long, to
+simplify matters.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git branch | grep 'chef-vendor' | awk -F- '{print $3}'
+</code></pre></div></div>
+
+<p>I also looked at the cookbooks that are applied to node’s expanded run
+lists. This <code class="language-plaintext highlighter-rouge">knife exec</code> one-liner will return such a list.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>knife exec -E "nodes.find('recipes:*').map {|n| n[:recipes]}.flatten.map {|r| r.gsub(/::.*/, '')}.sort.uniq"
+</code></pre></div></div>
+
+<h2 id="refactoring-customization">Refactoring Customization</h2>
+
+<p>My repository has a fair amount of customization to the cookbooks from
+the community site. Rather than go through all the changes, I’ll
+summarize with the more interesting parts.</p>
+
+<p>First, I use Samba for filesharing from an Ubuntu server. I originally
+changed the <code class="language-plaintext highlighter-rouge">samba::server</code> recipe so the services used upstart as the
+provider and set a <code class="language-plaintext highlighter-rouge">start_command</code> on Ubuntu, which looked like this
+(<code class="language-plaintext highlighter-rouge">s</code> is smbd or nmbd):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span> <span class="n">s</span> <span class="k">do</span>
+  <span class="n">pattern</span> <span class="s2">"smbd|nmbd"</span> <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">"platform"</span><span class="p">]</span> <span class="o">=~</span> <span class="sr">/^arch$/</span>
+  <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Service</span><span class="o">::</span><span class="no">Upstart</span> <span class="k">if</span> <span class="n">platform?</span><span class="p">(</span><span class="s2">"ubuntu"</span><span class="p">)</span>
+  <span class="n">start_command</span> <span class="s2">"/usr/bin/service </span><span class="si">#{</span><span class="n">s</span><span class="si">}</span><span class="s2"> start"</span> <span class="k">if</span> <span class="n">platform?</span><span class="p">(</span><span class="s2">"ubuntu"</span><span class="p">)</span>
+  <span class="n">action</span> <span class="p">[</span><span class="ss">:enable</span><span class="p">,</span> <span class="ss">:start</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The upstream cookbook doesn’t have this change, so I added an
+“application” cookbook, <code class="language-plaintext highlighter-rouge">housepub-samba</code>, which has this as the
+default recipe:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="s2">"smbd"</span><span class="p">,</span> <span class="s2">"nmbd"</span><span class="p">].</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+  <span class="n">srv</span> <span class="o">=</span> <span class="n">resource</span><span class="p">(</span><span class="s2">"service[</span><span class="si">#{</span><span class="n">s</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
+  <span class="n">srv</span><span class="p">.</span><span class="nf">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Service</span><span class="o">::</span><span class="no">Upstart</span>
+  <span class="n">srv</span><span class="p">.</span><span class="nf">start_command</span> <span class="s2">"/usr/bin/service </span><span class="si">#{</span><span class="n">s</span><span class="si">}</span><span class="s2"> start"</span>
+<span class="k">end</span> <span class="k">if</span> <span class="n">platform?</span><span class="p">(</span><span class="s2">"ubuntu"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>For each of the Samba services, we look up the resource in the
+resource collection, then change the provider to upstart, and set the
+<code class="language-plaintext highlighter-rouge">start_command</code> to use upstart’s service command.</p>
+
+<p>Next, I use OpenVPN. I also want to modify the template used for the
+<code class="language-plaintext highlighter-rouge">/etc/openvpn/server.conf</code> and <code class="language-plaintext highlighter-rouge">/etc/openvpn/server.up.sh</code> resources.
+Again, I create an “application” cookbook, <code class="language-plaintext highlighter-rouge">housepub-openvpn</code>, and the
+default recipe looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">resources</span><span class="p">(</span><span class="s2">"template[/etc/openvpn/server.conf]"</span><span class="p">).</span><span class="nf">cookbook</span> <span class="s2">"housepub-openvpn"</span>
+<span class="n">resources</span><span class="p">(</span><span class="s2">"template[/etc/openvpn/server.up.sh]"</span><span class="p">).</span><span class="nf">cookbook</span> <span class="s2">"housepub-openvpn"</span>
+</code></pre></div></div>
+
+<p>This is a shorter form of what was done for Samba’s services above.
+The <code class="language-plaintext highlighter-rouge">#resources</code> method does the lookup and returns the resource, and
+any of the resource parameter attributes can be used as a method, so I
+send the <code class="language-plaintext highlighter-rouge">cookbook</code> method to both template resources, setting this
+cookbook, <code class="language-plaintext highlighter-rouge">housepub-openvpn</code> as the cookbook that contains the
+template to use. Then, I copy my customized templates into
+<code class="language-plaintext highlighter-rouge">cookbooks/housepub-openvpn/templates/default</code>, and Chef will do the
+right thing.</p>
+
+<p>Other cookbook changes I made were:</p>
+
+<ul>
+  <li>Change the data bag name used in <code class="language-plaintext highlighter-rouge">djbdns::internal_server</code>, which I
+changed back so I could use the upstream recipe.</li>
+  <li>Add munin plugins to various cookbooks. As I’m planning to move
+things to Graphite, this is unnecessary and removed.</li>
+  <li>A few of my OS X cookbooks have the plist file for use with
+<code class="language-plaintext highlighter-rouge">mac_os_x_plist</code> LWRP. These are simply moved to my
+<a href="https://github.com/jtimberman/workstation-chef-repo/blob/master/cookbooks/workstation/recipes/default.rb#L72-L76">workstation data bag</a>.</li>
+</ul>
+
+<p>Finally, one special case is
+<a href="http://fnichol.github.com/chef-rbenv/">Fletcher Nichol’s rbenv cookbook</a>.
+The <code class="language-plaintext highlighter-rouge">rbenv::user_install</code> recipe manages <code class="language-plaintext highlighter-rouge">/etc/profile.d/rbenv.sh</code>,
+which requires root privileges. However, on my workstations where I
+use this particular cookbook, I run Chef as my user, so I had to
+comment this resource out. To allow for a non-privileged user running
+Chef, the better approach is to determine whether to manage that file
+by using an attribute, so I
+<a href="https://github.com/fnichol/chef-rbenv/pull/20">opened a pull request</a>,
+which is now merged. Now I just have the attribute set to <code class="language-plaintext highlighter-rouge">false</code> in
+my workstation role, and can use the cookbook unmodified.</p>
+
+<h2 id="remove-unused-and-berkshelf-cookbooks">Remove Unused and Berkshelf Cookbooks</h2>
+
+<p>Removing the unused cookbooks, and the cookbooks managed by Berkshelf
+was simple. First, each cookbook gained an entry in the Berksfile. For
+example, <code class="language-plaintext highlighter-rouge">apache2</code>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cookbook</span> <span class="s2">"apache2"</span>
+</code></pre></div></div>
+
+<p>Next, the cookbook was deleted from the Chef Server. I did this,
+purging all versions, because I planned to upload all the cookbooks as
+resolved by Berkshelf.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>knife cookbook delete -yap apache2
+</code></pre></div></div>
+
+<p>Finally, I removed the cookbook from the git repository.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git rm -r cookbooks/apache2
+git add Berksfile
+git commit -m 'apache2 is managed by Berkshelf'
+</code></pre></div></div>
+
+<p>The cookbooks that I didn’t plan to use, I simply didn’t add to
+Berkshelf, and removed them all in one commit.</p>
+
+<h1 id="after-berkshelf">After Berkshelf</h1>
+
+<p>The net effect of this change is a simpler, easier to manage
+repository. I now have only 23 cookbooks in my <code class="language-plaintext highlighter-rouge">cookbooks</code> directory.
+Some of those are candidates for refactoring and updating to the
+upstream ones, I just didn’t get to that yet. Most of them are
+“internal” cookbooks that aren’t published, since they’re specific for
+my internal network, such as my housepub-samba or housepub-openvpn
+cookbooks.</p>
+
+<p>On my Chef Server, I have 90 total cookbooks, which means 67 are
+managed by Berkshelf. I have 62 entries in my Berksfile, and some of
+those are dependencies of others, which means that can be refactored
+some as well.</p>
+
+<p>The workflow is simpler, and there’s fewer moving parts to worry about
+changing. I think this is a net positive for this since I do it in my
+free time. However, there’s a couple of issues, which should be
+addressed in Berkshelf soon.</p>
+
+<p>First,
+<a href="https://github.com/RiotGames/berkshelf/issues/190">Berkshelf issue #190</a>,
+which would have <code class="language-plaintext highlighter-rouge">berks update</code> take a single cookbook to update.
+Currently, it has to update all the cookbooks, and this takes time for
+impatient people.</p>
+
+<p>Second,
+<a href="https://github.com/RiotGames/berkshelf/issues/191">issue #191</a>, which
+would allow <code class="language-plaintext highlighter-rouge">berks upload</code> to take a single cookbook to upload.
+Normally, one could just use <code class="language-plaintext highlighter-rouge">knife cookbook upload</code>, but the
+directory where Berkshelf stores cookbooks it is managing are not
+located in the <code class="language-plaintext highlighter-rouge">cookbook_path</code>, and the knife command uses the
+directory name a the cookbook name. Berkshelf creates directories like
+<code class="language-plaintext highlighter-rouge">~/.berkshelf/cookbooks/apache2-1.3.0</code>, so the way to upload Berkshelf
+managed cookbooks is all together with the <code class="language-plaintext highlighter-rouge">berks upload</code> command.
+This isn’t a huge deal for me as I already uploaded all the cookbooks
+I’ve been using once.</p>
+
+<p>All in all, I am happy with this workflow, though. It is simple and
+hassle-free for me. Plus, I have more flexibility for maintaining my
+additional non-Opscode cookbooks.</p>
+
+  </div><a class="u-url" href="/blog/2012/11/19/chef-repository-berkshelf-conversion" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

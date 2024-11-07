@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Anatomy of a Test Kitchen 1.0 Cookbook (Part 2) | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Anatomy of a Test Kitchen 1.0 Cookbook (Part 2)" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="DISCLAIMER Test Kitchen 1.0 is still in alpha at the time of this post." />
+<meta property="og:description" content="DISCLAIMER Test Kitchen 1.0 is still in alpha at the time of this post." />
+<link rel="canonical" href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-2" />
+<meta property="og:url" content="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-2" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2013-03-19T09:28:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Anatomy of a Test Kitchen 1.0 Cookbook (Part 2)" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"DISCLAIMER Test Kitchen 1.0 is still in alpha at the time of this post.","url":"/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-2","headline":"Anatomy of a Test Kitchen 1.0 Cookbook (Part 2)","@type":"BlogPosting","dateModified":"2013-03-19T09:28:00+00:00","datePublished":"2013-03-19T09:28:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-2"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Anatomy of a Test Kitchen 1.0 Cookbook (Part 2)</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2013-03-19T09:28:00+00:00" itemprop="datePublished">
+        Mar 19, 2013
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><strong>DISCLAIMER</strong> Test Kitchen 1.0 is still in <em>alpha</em> at the time of
+  this post.</p>
+
+<p><strong>Update</strong> We’re no longer required to use bundler, and in fact
+  recommend installing the required RubyGems in your globalRuby
+  environment (#3 below).</p>
+
+<p><strong>Update</strong> The log output from the various kitchen commands is not
+  updated with the latest and greatest. Play along at home, it’ll be
+  okay :-).</p>
+
+<p>This is a continuation from <a href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-1/">part 1</a></p>
+
+<p>In order to run the tests then, we need a few things on our machine:</p>
+
+<ol>
+  <li>VirtualBox and Vagrant (1.1+)</li>
+  <li>A compiler toolchain with XML/XSLT development headers (for building Gem dependencies)</li>
+  <li>A sane, working Ruby environment (Ruby 1.9.3 or greater)</li>
+  <li>Git</li>
+</ol>
+
+<p>It is outside the scope of this post to cover how to get all those
+installed.</p>
+
+<p>Once those are installed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% vagrant plugin install vagrant-berkshelf
+% gem install berkshelf
+% gem install test-kitchen --pre
+% gem install kitchen-vagrant
+</code></pre></div></div>
+
+<p>Test Kitchen combines the suite (default) with the platform names
+(e.g., ubuntu-12.04). To run all the suites on all platforms, simply do:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% kitchen test
+</code></pre></div></div>
+
+<p>This will take awhile, especially if you don’t already have the
+Vagrant boxes on your system, as it will download each one. To make
+this faster, we’ll just run Ubuntu 12.04:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% kitchen test default.*1204
+</code></pre></div></div>
+
+<p>Test Kitchen 1.0 can take a regular expression for the instances to
+test. This will match the box <code class="language-plaintext highlighter-rouge">default-ubuntu-12.04</code>. I could also
+just say <code class="language-plaintext highlighter-rouge">12</code> as that will match the single entry in my kitchen list
+(above).</p>
+
+<p>It will take a few minutes to run Test Kitchen. Those familiar with
+Chef know that if it encounters an unhandled exception, it exits with
+a non-zero return code. This is important, because we know at the end
+of a successful run, Chef did the right thing, assuming our recipe is
+the right thing :-).</p>
+
+<p>To recap the <a href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-1/">previous post</a>, we have a run list like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>["recipe[apt]", "recipe[minitest-handler]", "recipe[bluepill_test]"]
+</code></pre></div></div>
+
+<p>Let’s break down the output of our successful run. I’ll show the
+output first, and explain it after:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting Kitchen
+Cleaning up any prior instances of &lt;default-ubuntu-1204&gt;
+Destroying &lt;default-ubuntu-1204&gt;
+Finished destroying &lt;default-ubuntu-1204&gt; (0m0.00s).
+Testing &lt;default-ubuntu-1204&gt;
+Creating &lt;default-ubuntu-1204&gt;
+</code></pre></div></div>
+
+<p>This is basic setup to ensure that “The Kitchen” is clean beforehand
+and we don’t have existing state interfering with the run.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[vagrant command] BEGIN (vagrant up default-ubuntu-1204 --no-provision)
+[default-ubuntu-1204] Importing base box 'canonical-ubuntu-12.04'...
+[default-ubuntu-1204] Matching MAC address for NAT networking...
+[default-ubuntu-1204] Clearing any previously set forwarded ports...
+[default-ubuntu-1204] Forwarding ports...
+[default-ubuntu-1204] -- 22 =&gt; 2222 (adapter 1)
+</code></pre></div></div>
+
+<p>This will look familiar to Vagrant users, we’re just getting some
+basic setup from Vagrant initializing the box defined in the
+<code class="language-plaintext highlighter-rouge">.kitchen.yml</code> (passed to the Vagrantfile by the kitchen-vagrant
+plugin). This step does a <code class="language-plaintext highlighter-rouge">vagrant up --no-provision</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Berkshelf] installing cookbooks...
+[Berkshelf] Using bluepill (2.2.2) at path: '/Users/jtimberman/Development/opscode/cookbooks/bluepill'
+[Berkshelf] Using apt (1.8.4)
+[Berkshelf] Using yum (2.0.0)
+[Berkshelf] Using minitest-handler (0.1.2)
+[Berkshelf] Using bluepill_test (0.0.1) at path: './test/cookbooks/bluepill_test'
+[Berkshelf] Using rsyslog (1.5.0)
+[Berkshelf] Using chef_handler (1.1.0)
+</code></pre></div></div>
+
+<p>Remember from the <a href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-1/">previous post</a> that we’re using Berkshelf? This is
+the integration with Vagrant that ensures that the cookbooks are
+available. The first four, <code class="language-plaintext highlighter-rouge">apt</code>, <code class="language-plaintext highlighter-rouge">yum</code>, <code class="language-plaintext highlighter-rouge">minitest-handler</code> and
+bluepill_test are defined in the Berksfile. The next, <code class="language-plaintext highlighter-rouge">rsyslog</code> is a
+dependency of the <code class="language-plaintext highlighter-rouge">bluepill</code> cookbook (for rsyslog integration), and the
+last, <code class="language-plaintext highlighter-rouge">chef_handler</code> is a dependency of <code class="language-plaintext highlighter-rouge">minitest-handler</code>. Berkshelf
+extracts the dependencies from the cookbook metadata of each cookbook
+defined in the Berksfile.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[default-ubuntu-1204] Creating shared folders metadata...
+[default-ubuntu-1204] Clearing any previously set network interfaces...
+[default-ubuntu-1204] Running any VM customizations...
+[default-ubuntu-1204] Booting VM...
+[default-ubuntu-1204] Waiting for VM to boot. This can take a few minutes.
+[default-ubuntu-1204] VM booted and ready for use!
+[default-ubuntu-1204] Setting host name...
+[default-ubuntu-1204] Mounting shared folders...
+[default-ubuntu-1204] -- v-root: /vagrant
+[default-ubuntu-1204] -- v-csc-1: /tmp/vagrant-chef-1/chef-solo-1/cookbooks
+[vagrant command] END (0m48.76s)
+Vagrant instance &lt;default-ubuntu-1204&gt; created.
+Finished creating &lt;default-ubuntu-1204&gt; (0m53.12s).
+</code></pre></div></div>
+
+<p>Again, this is familiar output to Vagrant users, where Vagrant is
+making the cookbooks available to the instance.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Converging &lt;default-ubuntu-1204&gt;
+[vagrant command] BEGIN (vagrant ssh default-ubuntu-1204 --command 'should_update_chef() {\n...')
+Installing Chef Omnibus (11.4.0)
+Downloading Chef 11.4.0 for ubuntu...
+Installing Chef 11.4.0
+Selecting previously unselected package chef.
+g database ...        60513 files and directories currently installed.)
+Unpacking chef (from .../chef_11.4.0_amd64.deb) ...
+Setting up chef (11.4.0-1.ubuntu.11.04) ...
+Thank you for installing Chef!
+[vagrant command] END (0m34.85s)
+[vagrant command] BEGIN (vagrant provision default-ubuntu-1204)
+[Berkshelf] installing cookbooks...
+[Berkshelf] Using bluepill (2.2.2) at path: '/Users/jtimberman/Development/opscode/cookbooks/bluepill'
+[Berkshelf] Using apt (1.8.4)
+[Berkshelf] Using yum (2.0.0)
+[Berkshelf] Using minitest-handler (0.1.2)
+[Berkshelf] Using bluepill_test (0.0.1) at path: './test/cookbooks/bluepill_test'
+[Berkshelf] Using rsyslog (1.5.0)
+[Berkshelf] Using chef_handler (1.1.0)
+</code></pre></div></div>
+
+<p>This part is interesting, in that we’re going to install the Full
+Stack Chef (Omnibus) package. This means it doesn’t matter what the
+underlying base box has installed, we get the right version of Chef.
+This is defined in the <code class="language-plaintext highlighter-rouge">.kitchen.yml</code>. This is done through <code class="language-plaintext highlighter-rouge">vagrant
+ssh</code> (second line). Then, Test Kitchen does <code class="language-plaintext highlighter-rouge">vagrant provision</code>. The
+provisioning step is where Berkshelf happens, so we do see this happen
+again (perhaps a bug?).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[default-ubuntu-1204] Running provisioner: Vagrant::Provisioners::ChefSolo...
+[default-ubuntu-1204] Generating chef JSON and uploading...
+[default-ubuntu-1204] Running chef-solo...
+INFO: *** Chef 11.4.0 ***
+INFO: Setting the run_list to ["recipe[apt]", "recipe[minitest-handler]", "recipe[bluepill_test]"] from JSON
+INFO: Run List is [recipe[apt], recipe[minitest-handler], recipe[bluepill_test]]
+INFO: Run List expands to [apt, minitest-handler, bluepill_test]
+INFO: Starting Chef Run for default-ubuntu-1204.vagrantup.com
+</code></pre></div></div>
+
+<p>This is the start of the actual Chef run, using Chef Solo by Vagrant’s
+provisioner. Note that we have our suite’s run list. I’m going to skip
+a lot of the Chef output because it isn’t required. Note that a few
+resources in the minitest–handler will report as failed, but they can
+be ignored because it means that those tests were simply not implemented.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INFO: Processing directory[/var/chef/minitest/bluepill_test] action create (minitest-handler::default line 50)
+INFO: directory[/var/chef/minitest/bluepill_test] created directory /var/chef/minitest/bluepill_test
+INFO: Processing cookbook_file[tests-bluepill_test-default] action create (minitest-handler::default line 53)
+INFO: cookbook_file[tests-bluepill_test-default] created file /var/chef/minitest/bluepill_test/default_test.rb
+INFO: Processing remote_directory[tests-support-bluepill_test-default] action create (minitest-handler::default line 60)
+INFO: remote_directory[tests-support-bluepill_test-default] created directory /var/chef/minitest/bluepill_test/support
+INFO: Processing cookbook_file[/var/chef/minitest/bluepill_test/support/helpers.rb] action create (dynamically defined)
+INFO: cookbook_file[/var/chef/minitest/bluepill_test/support/helpers.rb] mode changed to 644
+INFO: cookbook_file[/var/chef/minitest/bluepill_test/support/helpers.rb] created file /var/chef/minitest/bluepill_test/support/helpers.rb
+</code></pre></div></div>
+
+<p>These are the relevant parts of the minitest-handler recipe, where it
+has copied the tests from the <code class="language-plaintext highlighter-rouge">bluepill_test</code> cookbook into place.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INFO: Processing gem_package[i18n] action install (bluepill::default line 20)
+INFO: Processing gem_package[bluepill] action install (bluepill::default line 24)
+INFO: Processing directory[/etc/bluepill] action create (bluepill::default line 34)
+INFO: directory[/etc/bluepill] created directory /etc/bluepill
+INFO: directory[/etc/bluepill] owner changed to 0
+INFO: directory[/etc/bluepill] group changed to 0
+INFO: Processing directory[/var/run/bluepill] action create (bluepill::default line 34)
+INFO: directory[/var/run/bluepill] created directory /var/run/bluepill
+INFO: directory[/var/run/bluepill] owner changed to 0
+INFO: directory[/var/run/bluepill] group changed to 0
+INFO: Processing directory[/var/lib/bluepill] action create (bluepill::default line 34)
+INFO: directory[/var/lib/bluepill] created directory /var/lib/bluepill
+INFO: directory[/var/lib/bluepill] owner changed to 0
+INFO: directory[/var/lib/bluepill] group changed to 0
+INFO: Processing file[/var/log/bluepill.log] action create_if_missing (bluepill::default line 41)
+INFO: entered create
+INFO: file[/var/log/bluepill.log] owner changed to 0
+INFO: file[/var/log/bluepill.log] group changed to 0
+INFO: file[/var/log/bluepill.log] mode changed to 755
+INFO: file[/var/log/bluepill.log] created file /var/log/bluepill.log
+</code></pre></div></div>
+
+<p>Recall from the <a href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-1/">previous post</a> that the <code class="language-plaintext highlighter-rouge">bluepill_test</code> recipe includes
+the <code class="language-plaintext highlighter-rouge">bluepill</code> recipe. This is the basic setup of bluepill.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INFO: Processing package[nc] action install (bluepill_test::default line 4)
+INFO: Processing template[/etc/bluepill/test_app.pill] action create (bluepill_test::default line 16)
+INFO: template[/etc/bluepill/test_app.pill] updated content
+INFO: Processing bluepill_service[test_app] action enable (bluepill_test::default line 18)
+INFO: Processing bluepill_service[test_app] action load (bluepill_test::default line 18)
+INFO: Processing bluepill_service[test_app] action start (bluepill_test::default line 18)
+INFO: Processing link[/etc/init.d/test_app] action create (/tmp/vagrant-chef-1/chef-solo-1/cookbooks/bluepill/providers/service.rb line 30)
+INFO: link[/etc/init.d/test_app] created
+INFO: Chef Run complete in 81.099185824 seconds
+</code></pre></div></div>
+
+<p>And this is the rest of the <code class="language-plaintext highlighter-rouge">bluepill_test</code> recipe. It sets up a test
+service that will basically be a netcat process listening on a port.
+Let’s take a moment here and discuss what we have.</p>
+
+<p>First, we have successfully converged the default recipe in the
+<code class="language-plaintext highlighter-rouge">bluepill</code> cookbook via its inclusion in <code class="language-plaintext highlighter-rouge">bluepill_test</code>. This is
+awesome, because we know the recipe works exactly as we defined it,
+since Chef resources are declarative, and Chef exits if there’s a
+problem.</p>
+
+<p>Second, we have successfully setup a service managed by bluepill
+itself using the LWRP included in the <code class="language-plaintext highlighter-rouge">bluepill</code> cookbook,
+<code class="language-plaintext highlighter-rouge">bluepill_service</code>. This means we know that the underlying provider
+configured all the resources correctly.</p>
+
+<p>At this point, we could say “Ship it!” and release the cookbook,
+knowing it will do what we require. However, this may be disingenuous
+because we don’t know if the behavior of the system after all this
+runs is actually correct. Therefore we look to the next segment of
+output from Chef, from minitest:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INFO: Running report handlers
+Run options: -v --seed 38794
+\# Running tests:
+recipe::bluepill_test::default#test_0001_the_default_log_file_must_exist_cook_1295_ =
+0.00 s = .
+recipe::bluepill_test::default::create a bluepill configuration file#test_0001_anonymous =
+0.00 s = .
+recipe::bluepill_test::default::create a bluepill configuration file#test_0002_must_be_valid_ruby =
+0.06 s = .
+recipe::bluepill_test::default::runs the application as a service#test_0001_anonymous =
+0.72 s = .
+recipe::bluepill_test::default::runs the application as a service#test_0002_anonymous =
+0.71 s = .
+recipe::bluepill_test::default::spawn a netcat tcp client repeatedly#test_0001_should_receive_a_tcp_connection_from_netcat =
+2.24 s = .
+Finished tests in 3.746002s, 1.6017 tests/s, 1.8687 assertions/s.
+6 tests, 7 assertions, 0 failures, 0 errors, 0 skips
+</code></pre></div></div>
+
+<p>This is performed by the minitest-handler, which runs the tests copied
+from the <code class="language-plaintext highlighter-rouge">bluepill_test</code> cookbook before. It’s outside the scope of
+this post to describe how to write minitest-chef tests, but we can
+talk about the output.</p>
+
+<p>We have 6 separate tests that perform 7 assertions, and they all
+passed. The tests are asserting:</p>
+
+<ol>
+  <li>The log file is created, and by the full name of the test, this is
+to check for a regression from
+<a href="http://tickets.opscode.com/browse/COOK-1295">COOK-1295</a>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">.pill</code> config file for the service must exist and be valid
+Ruby.</li>
+  <li>The bluepill service must actually be enabled and running, thereby
+testing that those actions in the LWRP work.</li>
+  <li>The running service, which listens on a TCP port, must be up and
+available, thereby testing that bluepill started the service
+correctly.</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[vagrant command] END (1m29.24s)
+Finished converging &lt;default-ubuntu-1204&gt; (2m15.45s).
+Setting up &lt;default-ubuntu-1204&gt;
+Finished setting up &lt;default-ubuntu-1204&gt; (0m0.00s).
+Verifying &lt;default-ubuntu-1204&gt;
+Finished verifying &lt;default-ubuntu-1204&gt; (0m0.00s).
+Destroying &lt;default-ubuntu-1204&gt;
+[vagrant command] BEGIN (vagrant destroy default-ubuntu-1204 -f)
+[default-ubuntu-1204] Forcing shutdown of VM...
+[Berkshelf] cleaning Vagrant's shelf
+[default-ubuntu-1204] Destroying VM and associated drives...
+[vagrant command] END (0m3.68s)
+Vagrant instance &lt;default-ubuntu-1204&gt; destroyed.
+Finished destroying &lt;default-ubuntu-1204&gt; (0m4.04s).
+Finished testing &lt;default-ubuntu-1204&gt; (3m12.62s).
+Kitchen is finished. (3m12.62s)
+</code></pre></div></div>
+
+<p>This output shows Test Kitchen cleaning up after itself. We destroy
+the Vagrant instance on a successful convergence and test run in Chef,
+because further investigation is not required. If the test failed for
+some reason, Test Kitchen leaves it running so you can log into the
+machine and poke around to find out what went wrong. Then simply
+correct the required part of the cookbook (recipes, tests, etc) and
+rerun Test Kitchen. For example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% bundle exec kitchen login 1204
+vagrant@ubuntu-1204$ ... run some commands
+vagrant@ubuntu-1204$ ^D
+% bundle exec kitchen converge 1204
+</code></pre></div></div>
+
+<p>My goal with these posts is to get some information out for folks to
+consider when examining Test Kitchen 1.0 alpha for their own projects.
+There’s a lot more to Test Kitchen, such as managing non-cookbook
+projects, or even using other kinds of tests. We’ll have more
+documentation and guides as we get the 1.0 release out.</p>
+
+<p>Enjoy!</p>
+
+  </div><a class="u-url" href="/blog/2013/03/19/anatomy-of-a-test-kitchen-1-dot-0-cookbook-part-2" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

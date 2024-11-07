@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Using Multiple Provisioners in Vagrant | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Using Multiple Provisioners in Vagrant" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Update Chef 10.14 is released. I removed the “--pre” from the gem install commands but otherwise left this post, since it was written by Past Me." />
+<meta property="og:description" content="Update Chef 10.14 is released. I removed the “--pre” from the gem install commands but otherwise left this post, since it was written by Past Me." />
+<link rel="canonical" href="/blog/2012/08/10/vagrant-multiple-provisioners" />
+<meta property="og:url" content="/blog/2012/08/10/vagrant-multiple-provisioners" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-08-10T11:39:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Using Multiple Provisioners in Vagrant" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Update Chef 10.14 is released. I removed the “--pre” from the gem install commands but otherwise left this post, since it was written by Past Me.","url":"/blog/2012/08/10/vagrant-multiple-provisioners","headline":"Using Multiple Provisioners in Vagrant","@type":"BlogPosting","dateModified":"2012-08-10T11:39:00+00:00","datePublished":"2012-08-10T11:39:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/08/10/vagrant-multiple-provisioners"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Using Multiple Provisioners in Vagrant</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-08-10T11:39:00+00:00" itemprop="datePublished">
+        Aug 10, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><strong>Update</strong> Chef 10.14 is
+  <a href="http://www.opscode.com/blog/2012/09/07/chef-10-14-0-released/">released</a>.
+  I removed the “<code class="language-plaintext highlighter-rouge">--pre</code>” from the gem install commands but otherwise
+  left this post, since it was written by Past Me.</p>
+
+<p>As you may be aware, the next release of Chef, 10.14, is in
+<a href="http://lists.opscode.com/sympa/arc/chef-dev/2012-07/msg00021.html">beta testing</a>.
+Most publicly available baseboxes for <a href="http://vagrantup.com">Vagrant</a>
+aren’t built for the beta. But perhaps you want to try it out?</p>
+
+<p>Vagrant to the rescue! Besides the Chef solo and client provisioners,
+Vagrant has a shell provisioner, too. It allows you to pass in an
+inline command, or a shell script. This example builds on my
+<a href="/blog/2012/03/18/multivm-vagrantfile-for-chef/">MultiVM Vagrantfile for Chef post</a>.
+You may wish to refer to the full file in that post for complete
+context.</p>
+
+<p>First, the shell provisioner line looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">:inline</span> <span class="o">=&gt;</span> <span class="s2">"sudo /opt/chef/embedded/bin/gem install chef --no-ri --no-rdoc"</span>
+</code></pre></div></div>
+
+<p>It goes in the config block. Remember that <code class="language-plaintext highlighter-rouge">cookbook_testers</code> is a
+hash of data about the multiple VMs I’m using, so they would all get
+launched with this provisioner.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">Vagrant</span><span class="o">::</span><span class="no">Config</span><span class="p">.</span><span class="nf">run</span> <span class="k">do</span> <span class="o">|</span><span class="n">global_config</span><span class="o">|</span>
+  <span class="n">cookbook_testers</span><span class="p">.</span><span class="nf">each_pair</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">options</span><span class="o">|</span>
+    <span class="n">global_config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">define</span> <span class="nb">name</span> <span class="k">do</span> <span class="o">|</span><span class="n">config</span><span class="o">|</span>
+      <span class="c1">### Use shell for great justice!</span>
+      <span class="n">config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">:inline</span> <span class="o">=&gt;</span> <span class="s2">"sudo /opt/chef/embedded/bin/gem install chef --no-ri --no-rdoc"</span>
+      <span class="c1">### chef-client (allthethings)</span>
+      <span class="n">config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">provision</span> <span class="ss">:chef_client</span> <span class="k">do</span> <span class="o">|</span><span class="n">chef</span><span class="o">|</span>
+        <span class="c1"># ... chef provisioner is the same as before</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>And now, a <code class="language-plaintext highlighter-rouge">vagrant up</code> on my Ubuntu 12.04 VM, with the less
+interesting output truncated:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% vagrant up precise
+...
+[precise] Running provisioner: Vagrant::Provisioners::Shell...
+Successfully installed chef-10.14.0.beta.3
+1 gem installed
+[precise] Running provisioner: Vagrant::Provisioners::ChefClient...
+...
+[precise] Running chef-client...
+...
+[Fri, 10 Aug 2012 17:50:23 +0000] INFO: *** Chef 10.14.0.beta.3 ***
+...
+[Fri, 10 Aug 2012 17:50:37 +0000] INFO: Chef Run complete in 11.323208919 seconds
+</code></pre></div></div>
+
+<p>One of the most compelling features of Chef 10.14 is the introduction
+of
+<a href="http://tickets.opscode.com/browse/CHEF-13">“no-op” or “dry-run” mode</a>,
+also called
+“<a href="http://lists.opscode.com/sympa/arc/chef/2012-07/msg00025.html">Why Run Mode</a>”.
+However, at this time, neither arbitrary command-line arguments nor why-run
+mode itself are supported in Vagrant. I opened a
+<a href="https://github.com/mitchellh/vagrant/pull/1067">pull request</a> for the
+former, which will allow the latter easily. Of course, vagrant is
+highly valuable for doing testing by <em>actually running</em> your recipes,
+but I think arbitrary command-line options will be a welcome feature
+for other purposes.</p>
+
+<p>Another use case for this particular method of using Vagrant
+provisioners is to update RubyGems inside an “Omnibus” full stack
+install, to resolve
+<a href="http://tickets.opscode.com/browse/CHEF-3295">this bug</a>, or
+<a href="http://tickets.opscode.com/browse/CHEF-2871">this request</a>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">:inline</span> <span class="o">=&gt;</span> <span class="s2">"sudo /opt/chef/embedded/bin/gem update --system"</span>
+</code></pre></div></div>
+
+<p>These two example commands can be combined in a single <code class="language-plaintext highlighter-rouge">:inline</code>, or
+as a shell script.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span><span class="p">.</span><span class="nf">vm</span><span class="p">.</span><span class="nf">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">:path</span> <span class="o">=&gt;</span> <span class="s2">"gem-updater.sh"</span>
+</code></pre></div></div>
+
+<p>And the shell script, <code class="language-plaintext highlighter-rouge">gem-updater.sh</code> in the same directory as the Vagrantfile:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<span class="nb">sudo</span> /opt/chef/embedded/bin/gem update <span class="nt">--system</span>
+<span class="nb">sudo</span> /opt/chef/embedded/bin/gem <span class="nb">install </span>chef <span class="nt">--no-ri</span> <span class="nt">--no-rdoc</span>
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/blog/2012/08/10/vagrant-multiple-provisioners" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

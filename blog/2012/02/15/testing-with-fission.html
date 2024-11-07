@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Testing with fission | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Testing with fission" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this post, I’m going to talk about the fission gem:" />
+<meta property="og:description" content="In this post, I’m going to talk about the fission gem:" />
+<link rel="canonical" href="/blog/2012/02/15/testing-with-fission" />
+<meta property="og:url" content="/blog/2012/02/15/testing-with-fission" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-02-15T22:53:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Testing with fission" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"In this post, I’m going to talk about the fission gem:","url":"/blog/2012/02/15/testing-with-fission","headline":"Testing with fission","@type":"BlogPosting","dateModified":"2012-02-15T22:53:00+00:00","datePublished":"2012-02-15T22:53:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/02/15/testing-with-fission"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Testing with fission</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-02-15T22:53:00+00:00" itemprop="datePublished">
+        Feb 15, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In this post, I’m going to talk about the fission gem:</p>
+
+<ul>
+  <li><a href="http://rubygems.org/gems/fission">http://rubygems.org/gems/fission</a></li>
+  <li><a href="https://github.com/thbishop/fission">https://github.com/thbishop/fission</a></li>
+</ul>
+
+<p>I primarily use this to manage the VMware Fusion virtual machines I
+use for testing <a href="http://community.opscode.com/users/opscode">Opscode’s Chef Cookbooks</a>.</p>
+
+<p>This post is rather light on specific details about things that are
+either “common” knowledge or documented elsewhere. Particularly, I
+won’t tell you how to set up the virtual machines, other than a few
+notes that I think make it easier to manage virtual machines in this
+way. In other words, you’re smart and can figure them out.</p>
+
+<h2 id="install-and-configure">Install and Configure</h2>
+
+<p>The first step to use the fission RubyGem is to install it. If you
+don’t like RubyGems, then create a package or grab the source from the
+GitHub link, above.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install fission
+</code></pre></div></div>
+
+<p>Test that it is detecting your VMware Fusion VMs:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fission status
+</code></pre></div></div>
+
+<p>Fission has a configuration file, <code class="language-plaintext highlighter-rouge">~/.fissionrc</code>, which is yaml
+format. If the status command fails, you may need to configure fission
+to find the <code class="language-plaintext highlighter-rouge">vmrun</code> command. Here’s the example from my system:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---
+vmrun_bin: /Applications/VMware Fusion.app/Contents/Library/vmrun
+</code></pre></div></div>
+
+<h2 id="install-an-os-on-a-vm">Install an OS on a VM</h2>
+
+<p>If you’re reading this, I presume you know how to install an OS in a
+VMware virtual machine. I do a number of tasks during the installation
+to make it easy and consistent to work with all my test VMs.</p>
+
+<ul>
+  <li>Use bridged networking with DHCP</li>
+</ul>
+
+<p>This usually results in the least amount of hassle for connecting to
+the VM without any tunneling or port forwarding tomfoolery.</p>
+
+<ul>
+  <li>Give it a simple VM name with alphanumeric characters only.</li>
+  <li>Use the same hostname during installation as the VM name</li>
+</ul>
+
+<p>In the examples below, I use my “guineapig” system. I also have other
+systems like “ubuntu1110”, “freebsd82” and “centos6”. This is the name
+you’ll use to refer to the VM with fission, so it should be short,
+easy to type and clearly identifiable.</p>
+
+<ul>
+  <li>Set the root password, even if the OS doesn’t use the root account</li>
+  <li>Make sure SSH as root is enabled</li>
+</ul>
+
+<p>Some Linux distributions such as Ubuntu do not enable the root login.
+This is for testing, so I really don’t care, and I can always write a
+Chef recipe to lock things down (as I would in production) if
+required.</p>
+
+<p>I also set a simple password that I can use with <code class="language-plaintext highlighter-rouge">-P</code> to <code class="language-plaintext highlighter-rouge">knife
+bootstrap</code> without the shell doing anything with special characters.</p>
+
+<ul>
+  <li>Use NTP</li>
+</ul>
+
+<p>Install the NTP package for your operating system. The workflow here
+(and the whole point really) is to make heavy use of VMware Fusion
+snapshots and rollback, so it is important that the system time is
+correct. I customized the bootstrap templates I use to add <code class="language-plaintext highlighter-rouge">ntpdate</code>.</p>
+
+<h2 id="using-fission">Using Fission</h2>
+
+<p>And now the moment you’ve been waiting for. First, see the fission
+README for full detail on the commands available. I’m going to focus
+here on how I use it.</p>
+
+<p>After the install and post install tasks are done, I create a
+new snapshot for the VM.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% fission status
+guineapig        [running]
+% fission snapshot create guineapig base
+</code></pre></div></div>
+
+<p>The name is “base” because thats a good name for a baseline. It can be
+useful to create specifically named snapshots for particular purposes.</p>
+
+<p>I use Opscode Hosted Chef as my server and I already have my local
+workstation set up with the validation key, a Chef repository and have
+uploaded the cookbook(s) I use for testing. I’ll use “knife
+bootstrap” to kick off a run on my VM:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife bootstrap 10.1.1.129 -x root -Pvanilla -r 'recipe[apache2]'
+...
+INFO: service[apache2] restarted
+INFO: Chef Run complete in 44.324473 seconds
+</code></pre></div></div>
+
+<p>Sweet, it worked. However, if the Chef run fails, I can log in as
+root, fix the bug and rerun, or whatever else may need to be done.
+Then once I’m ready to reset the VM, fission comes back to play.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% fission snapshot revert guineapig base
+Reverting to snapshot 'base'
+Reverted to snapshot 'base'
+</code></pre></div></div>
+
+<p>Note that fission will poweroff the VM when reverting the snapshot.
+Turn it on again with the start command.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% fission status
+guineapig        [not running]
+
+% fission start guineapig
+Starting 'guineapig'
+VM 'guineapig' started
+
+% fission status
+guineapig        [running]
+</code></pre></div></div>
+
+<p>And after logging in, we can see that apache2 is not installed as it
+should not be after the snapshot is restored.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% ssh root@guineapig
+root@guineapig's password:
+root@guineapig:~# dpkg -l apache2
+No packages found matching apache2.
+</code></pre></div></div>
+
+<p>The VM is now ready to do my bidding once again.</p>
+
+<h1 id="cleanup">Cleanup</h1>
+
+<p>Note that reverting the snapshot doesn’t delete the Chef node or
+client objects. Since fission is a Ruby library, a simple knife plugin
+can wrap up all the fission revert, restart and Chef cleanup, though.
+I called mine nukular.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife nukular guineapig base guineapig.int.example.com
+</code></pre></div></div>
+
+<p>And here’s the plugin I’m using:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'chef/knife'</span>
+
+  <span class="k">module</span> <span class="nn">KnifePlugins</span>
+    <span class="k">class</span> <span class="nc">Nukular</span> <span class="o">&lt;</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Knife</span>
+      <span class="n">deps</span> <span class="k">do</span>
+        <span class="nb">require</span> <span class="s1">'fission'</span>
+        <span class="nb">require</span> <span class="s1">'chef/node'</span>
+        <span class="nb">require</span> <span class="s1">'chef/api_client'</span>
+      <span class="k">end</span>
+
+      <span class="n">banner</span> <span class="s2">"knife nukular VM SNAPSHOT [NODE]"</span>
+
+      <span class="k">def</span> <span class="nf">run</span>
+        <span class="n">vm</span><span class="p">,</span> <span class="n">snapshot</span> <span class="o">=</span> <span class="vi">@name_args</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="vi">@name_args</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="nf">nil?</span> <span class="p">?</span> <span class="n">vm</span> <span class="p">:</span> <span class="vi">@name_args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="no">Fission</span><span class="o">::</span><span class="no">Command</span><span class="o">::</span><span class="no">SnapshotRevert</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">vm</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">]).</span><span class="nf">execute</span>
+        <span class="no">Fission</span><span class="o">::</span><span class="no">Command</span><span class="o">::</span><span class="no">Start</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">vm</span><span class="p">]).</span><span class="nf">execute</span>
+        <span class="no">Chef</span><span class="o">::</span><span class="no">Node</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">node</span><span class="p">).</span><span class="nf">destroy</span>
+        <span class="no">Chef</span><span class="o">::</span><span class="no">ApiClient</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">node</span><span class="p">).</span><span class="nf">destroy</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+</code></pre></div></div>
+
+<p>The command-line usage takes 2 or 3 arguments. The first two must be
+the VM name and the snapshot name, e.g. <code class="language-plaintext highlighter-rouge">guineapig</code> and <code class="language-plaintext highlighter-rouge">base</code>. If the
+node name is different than the VM name, then specify it.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife nukular guineapig base guineapig.int.example.com
+</code></pre></div></div>
+
+<p>Note that the plugin has <em>zero</em> error handling or any other sensible
+things. You may want to modify it before you use it. Or not, these are
+just test systems after all.</p>
+
+<h2 id="full-example">Full example</h2>
+
+<p>Minus the output from the commands, here is the full output of testing
+the Opscode apache2 cookbook on my guinea pig. Assume that all the
+required things from my Chef Repository have been uploaded to the Chef
+Server and the knife configuration is correct. Also, the <code class="language-plaintext highlighter-rouge">chef-full</code>
+bootstrap template specified here is a customized version of the
+template in the
+<a href="https://github.com/opscode/chef/blob/master/chef/lib/chef/knife/bootstrap/chef-full.erb">Chef source master branch template</a>
+that has <code class="language-plaintext highlighter-rouge">ntpdate -u pool.ntp.org</code> in it.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% fission status
+% fission snapshot create guineapig testing-apache2
+% knife bootstrap 10.1.1.129 -x root -P vanilla \
+  -r 'recipe[apache2]' -d chef-full
+% knife nukular guineapig testing-apache2 guineapig.int.housepub.org
+</code></pre></div></div>
+
+<p>That’s it. I hope you find this helpful!</p>
+
+  </div><a class="u-url" href="/blog/2012/02/15/testing-with-fission" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

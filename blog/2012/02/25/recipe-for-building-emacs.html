@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Recipe for Building Emacs | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Recipe for Building Emacs" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="It is no secret that I use GNU Emacs as my default text editor. It is perhaps less evident but no less relevant that I use Emacs 24. I really like the built-in color theme support and the package management system for getting the various modes I like to use." />
+<meta property="og:description" content="It is no secret that I use GNU Emacs as my default text editor. It is perhaps less evident but no less relevant that I use Emacs 24. I really like the built-in color theme support and the package management system for getting the various modes I like to use." />
+<link rel="canonical" href="/blog/2012/02/25/recipe-for-building-emacs" />
+<meta property="og:url" content="/blog/2012/02/25/recipe-for-building-emacs" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-02-25T23:51:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Recipe for Building Emacs" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"It is no secret that I use GNU Emacs as my default text editor. It is perhaps less evident but no less relevant that I use Emacs 24. I really like the built-in color theme support and the package management system for getting the various modes I like to use.","url":"/blog/2012/02/25/recipe-for-building-emacs","headline":"Recipe for Building Emacs","@type":"BlogPosting","dateModified":"2012-02-25T23:51:00+00:00","datePublished":"2012-02-25T23:51:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/02/25/recipe-for-building-emacs"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Recipe for Building Emacs</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-02-25T23:51:00+00:00" itemprop="datePublished">
+        Feb 25, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>It is no secret that
+<a href="https://jtimberman.housepub.org/blog/2011/05/06/switching-to-gnu-emacs/">I use GNU Emacs</a>
+as my default text editor. It is perhaps less evident but no less
+relevant that I use Emacs 24. I really like the built-in color theme
+support and the package management system for getting the various
+modes I like to use.</p>
+
+<p>Recently, I revamped my
+<a href="https://github.com/jtimberman/.emacs.d">Emacs configuration</a>. This
+post isn’t about that topic. Instead, this post is about how I made
+sure that all the systems I want to use Emacs on have the latest
+version available.</p>
+
+<p>Unfortunately, Emacs 24 is still unreleased, so it is not available as
+the default package on the distributions I use for my personal systems
+(Ubuntu/Debian flavors). I wrote a recipe to install Emacs
+from source. This is easy enough to do, but since I already automate
+everything on my home network with Chef, it was a natural fit for a
+new recipe. I simply added this to my local <code class="language-plaintext highlighter-rouge">emacs</code> cookbook, in
+<code class="language-plaintext highlighter-rouge">recipes/source24.rb</code>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">srcdir</span> <span class="o">=</span> <span class="s2">"</span><span class="si">#{</span><span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="p">[</span><span class="ss">:file_cache_path</span><span class="p">]</span><span class="si">}</span><span class="s2">/emacs-source"</span>
+
+<span class="sx">%w{ git-core build-essential texinfo autoconf libncurses-dev }</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span><span class="o">|</span><span class="n">prereq</span><span class="o">|</span> <span class="n">package</span> <span class="n">prereq</span><span class="p">}</span>
+
+<span class="n">git</span> <span class="s2">"</span><span class="si">#{</span><span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="p">[</span><span class="ss">:file_cache_path</span><span class="p">]</span><span class="si">}</span><span class="s2">/emacs-source"</span> <span class="k">do</span>
+  <span class="n">repository</span> <span class="s2">"git://git.savannah.gnu.org/emacs.git"</span>
+  <span class="n">action</span> <span class="ss">:checkout</span>
+<span class="k">end</span>
+
+<span class="n">bash</span> <span class="s2">"build emacs24"</span> <span class="k">do</span>
+  <span class="n">cwd</span> <span class="n">srcdir</span>
+  <span class="n">creates</span> <span class="s2">"</span><span class="si">#{</span><span class="n">srcdir</span><span class="si">}</span><span class="s2">/src/emacs"</span>
+  <span class="n">code</span> <span class="o">&lt;&lt;-</span><span class="no">EOH</span><span class="sh">
+    ./autogen.sh &amp;&amp; \
+    ./configure --without-x &amp;&amp; \
+    make bootstrap &amp;&amp; \
+    make 2&gt;&amp;1 &gt;| make-</span><span class="si">#{</span><span class="n">node</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="sh">-</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="s1">'ohai_time'</span><span class="p">]</span><span class="si">}</span><span class="sh">
+</span><span class="no">  EOH</span>
+<span class="k">end</span>
+
+<span class="n">execute</span> <span class="s2">"install emacs24"</span> <span class="k">do</span>
+  <span class="n">cwd</span> <span class="n">srcdir</span>
+  <span class="n">command</span> <span class="s2">"make install 2&gt;&amp;1 &gt;| make-</span><span class="si">#{</span><span class="n">node</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="s1">'ohai_time'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+  <span class="n">creates</span> <span class="s2">"/usr/local/bin/emacs"</span>
+  <span class="n">only_if</span> <span class="s2">"</span><span class="si">#{</span><span class="n">srcdir</span><span class="si">}</span><span class="s2">/src/emacs --version"</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Then I updated my base role to replace <code class="language-plaintext highlighter-rouge">recipe[emacs]</code> with
+<code class="language-plaintext highlighter-rouge">recipe[emacs::source24]</code> and ran Chef. It took about 25 minutes to do
+the build, but now I have the same version of Emacs everywhere, and
+there was much rejoicing.</p>
+
+<p>And yes, you’re absolutely right, I could just build a package and
+install that. However, I don’t want to set up and maintain a package
+management repository for my small network, as
+<a href="http://ckbk.it/reprepro">easy</a> as <a href="http://ckbk.it/apt">that</a> may be.</p>
+
+<p>My OS X systems are a special case because I’m using Homebrew, but the
+<a href="http://ckbk.it/homebrew">homebrew cookbook</a> does not [yet?] support
+install-time options, and I didn’t spend the time adding support for
+building the OS X Emacs w/ cocoa support from git. When I tackle that,
+I’ll make another post, so stay tuned!</p>
+
+  </div><a class="u-url" href="/blog/2012/02/25/recipe-for-building-emacs" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>
