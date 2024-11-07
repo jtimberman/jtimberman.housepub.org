@@ -13,7 +13,8 @@ I am interested in technical operations, DevOps, SRE, application deployment, sy
 I'm pretty easy to find on the internet:
 
 * <a rel="me" href="https://hachyderm.io/@jtimberman">Mastodon (Hachyderm)</a>
-* [Twitter](https://twitter.com/jtimberman)
+* <a rel="me" href="https://bsky.app/profile/jtimberman.bsky.social">BlueSky (Bsky)</a>
+* Twitter can go fuck itself.
 * [GitHub](https://github.com/jtimberman)
 * [LinkedIn](https://www.linkedin.com/in/jtimberman/)
 * [Email](mailto:blog@housepub.org)
