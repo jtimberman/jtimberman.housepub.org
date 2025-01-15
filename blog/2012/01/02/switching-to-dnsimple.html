@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Switching to DNSimple | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Switching to DNSimple" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Reminder: this blog reflects my opinions and thoughts, and not those of my employer, Chef Software, Inc." />
+<meta property="og:description" content="Reminder: this blog reflects my opinions and thoughts, and not those of my employer, Chef Software, Inc." />
+<link rel="canonical" href="/blog/2012/01/02/switching-to-dnsimple" />
+<meta property="og:url" content="/blog/2012/01/02/switching-to-dnsimple" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-01-02T13:03:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Switching to DNSimple" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Reminder: this blog reflects my opinions and thoughts, and not those of my employer, Chef Software, Inc.","url":"/blog/2012/01/02/switching-to-dnsimple","headline":"Switching to DNSimple","@type":"BlogPosting","dateModified":"2012-01-02T13:03:00+00:00","datePublished":"2012-01-02T13:03:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/01/02/switching-to-dnsimple"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Switching to DNSimple</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-01-02T13:03:00+00:00" itemprop="datePublished">
+        Jan 2, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <font size="-2">Reminder: this blog reflects my opinions and thoughts, and not
+those of my employer, Chef Software, Inc.</font>
+
+<p>Like any good sysadmin, I have my own domain for email and other
+purposes. I actually have had a couple, but this post is about my
+current one. I originally set it up through Google Apps a couple years
+ago, including registering the new domain with Google Apps’ default
+registrar, GoDaddy. For the most part, it was pretty simple and
+painless to set up, including private registration via Domains by
+Proxy. Yay!</p>
+
+<p>However, as I automated more components of my home network with Chef,
+I found the lack of API driven DNS rather frustrating. At last count,
+I had 15 distinct networked devices, counting all the computers,
+consoles, mobile devices, etc. This does not count the virtual
+machines that I manage as a part of my daily job in doing Chef
+cookbook development and testing, which should all have their own DNS
+entries, since I’ll access them over the network, and remembering IPs
+is ridiculous.</p>
+
+<h1 id="internal-dns-server">Internal DNS Server</h1>
+
+<p>I use <a href="http://cr.yp.to/djbdns.html">DJB’s tinydns</a> as my DNS server,
+and it is automated with the
+<a href="http://community.opscode.com/cookbooks/djbdns">Opscode Chef Cookbook</a>.
+The first incarnation of this setup was a single monolithic template
+file containing all the entries in my local network zone, delivered by
+the <code class="language-plaintext highlighter-rouge">djbdns::tinydns-internal</code> recipe, like so:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">template</span> <span class="s2">"</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="ss">:djbdns</span><span class="p">][</span><span class="ss">:tinydns_internal_dir</span><span class="p">]</span><span class="si">}</span><span class="s2">/root/data"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="s2">"tinydns-internal-data.erb"</span>
+  <span class="n">mode</span> <span class="mo">0644</span>
+  <span class="n">notifies</span> <span class="ss">:run</span><span class="p">,</span> <span class="n">resources</span><span class="p">(</span><span class="s2">"execute[build-tinydns-internal-data]"</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>This was great, and simple to manage for this single purpose setup. At
+some point, I wrote cookbooks for
+<a href="http://community.opscode.com/cookbooks/unbound">unbound</a> and
+<a href="http://community.opscode.com/cookbooks/pdns">powerdns</a>, as I was
+evaluating whether one or the other might be easier to modularize. In
+the process, I created a data bag of all my DNS entries that I could
+step through in templates, so I could use the same data without caring
+which software was going to consume it. In the end, I extended the
+djbdns cookbook with a lightweight resource and provider, and added
+usage to the <code class="language-plaintext highlighter-rouge">djbdns::tinydns-internal</code> recipe like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dns</span> <span class="o">=</span> <span class="n">data_bag_item</span><span class="p">(</span><span class="s2">"djbdns"</span><span class="p">,</span> <span class="n">node</span><span class="p">[</span><span class="ss">:djbdns</span><span class="p">][</span><span class="ss">:domain</span><span class="p">].</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/\./</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">))</span>
+<span class="c1">#</span>
+<span class="n">file</span> <span class="s2">"</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="ss">:djbdns</span><span class="p">][</span><span class="ss">:tinydns_internal_dir</span><span class="p">]</span><span class="si">}</span><span class="s2">/root/data"</span> <span class="k">do</span>
+  <span class="n">action</span> <span class="ss">:create</span>
+<span class="k">end</span>
+<span class="c1">#</span>
+<span class="sx">%w{ ns host alias }</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">type</span><span class="o">|</span>
+  <span class="n">dns</span><span class="p">[</span><span class="n">type</span><span class="p">].</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">record</span><span class="o">|</span>
+    <span class="n">record</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">fqdn</span><span class="p">,</span><span class="n">ip</span><span class="o">|</span>
+      <span class="c1">#</span>
+      <span class="n">djbdns_rr</span> <span class="s2">"</span><span class="si">#{</span><span class="n">fqdn</span><span class="si">}</span><span class="s2">.</span><span class="si">#{</span><span class="n">dns</span><span class="p">[</span><span class="s1">'domain'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+        <span class="n">cwd</span> <span class="s2">"</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="ss">:djbdns</span><span class="p">][</span><span class="ss">:tinydns_internal_dir</span><span class="p">]</span><span class="si">}</span><span class="s2">/root"</span>
+        <span class="n">ip</span> <span class="n">ip</span>
+        <span class="n">type</span> <span class="n">type</span>
+        <span class="n">action</span> <span class="ss">:add</span>
+        <span class="n">notifies</span> <span class="ss">:run</span><span class="p">,</span> <span class="s2">"execute[build-tinydns-internal-data]"</span>
+      <span class="k">end</span>
+      <span class="c1">#</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The data bag itself looks something like this:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">int_example_com</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">domain</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">example.com</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">ns</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="dl">"</span><span class="s2">ns: </span><span class="dl">"</span><span class="mf">127.0</span><span class="p">.</span><span class="mf">0.1</span><span class="dl">"</span><span class="s2"> }
+  ],
+  </span><span class="dl">"</span><span class="nx">alias</span><span class="dl">"</span><span class="s2">: [
+    { </span><span class="dl">"</span><span class="nx">gw</span><span class="dl">"</span><span class="s2">:         </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.1</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">smb</span><span class="dl">"</span><span class="s2">:        </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.20</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">files</span><span class="dl">"</span><span class="s2">:      </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.20</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">apt</span><span class="dl">"</span><span class="s2">:        </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.120</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">yum</span><span class="dl">"</span><span class="s2">:        </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.120</span><span class="dl">"</span><span class="s2"> }
+  ],
+  </span><span class="dl">"</span><span class="nx">host</span><span class="dl">"</span><span class="s2">: [
+    { </span><span class="dl">"</span><span class="nx">tavern</span><span class="dl">"</span><span class="s2">:          </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.1</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">cask</span><span class="dl">"</span><span class="s2">:            </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.20</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">cider</span><span class="dl">"</span><span class="s2">:           </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.101</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">merlot</span><span class="dl">"</span><span class="s2">:          </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.103</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">bourbon</span><span class="dl">"</span><span class="s2">:         </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.104</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">iphone</span><span class="dl">"</span><span class="s2">:          </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.105</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">doppelbock</span><span class="dl">"</span><span class="s2">:      </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.106</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">ipad</span><span class="dl">"</span><span class="s2">:            </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.107</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">wii</span><span class="dl">"</span><span class="s2">:             </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.108</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">xbox</span><span class="dl">"</span><span class="s2">:            </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.109</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">htpc</span><span class="dl">"</span><span class="s2">:            </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.110</span><span class="dl">"</span><span class="s2"> },
+    { </span><span class="dl">"</span><span class="nx">virt1test</span><span class="dl">"</span><span class="s2">:       </span><span class="dl">"</span><span class="mf">10.10</span><span class="p">.</span><span class="mf">20.120</span><span class="dl">"</span><span class="s2"> }
+  ]
+}
+</span></code></pre></div></div>
+
+<p>I am pretty pleased with this approach in that this data can be used
+no matter what DNS resolver software I choose. While this is great for
+the more static part of my network, as I mentioned I do have some
+dynamic usage where I create new virtual machines, and I really want
+them to register themselves in DNS automatically.</p>
+
+<h1 id="enter-dnsimple">Enter DNSimple</h1>
+
+<p>A few months ago I decided to switch over to DNSimple. The service was
+compelling over the alternatives for a few reasons:</p>
+
+<ul>
+  <li>Low cost ($3/mo) for my size of account.</li>
+  <li>Very simple interface</li>
+  <li>API for managing records (!)</li>
+  <li>Reputation for great service</li>
+</ul>
+
+<p><a href="https://github.com/dje">Darrin Eden</a>
+wrote a <a href="http://community.opscode.com/cookbooks/dnsimple">cookbook</a>
+for automatically creating records through the API, too, so half my
+work for automating with Chef was already done!</p>
+
+<p>However, for various reasons I procrastinated the switchover. After
+all, my existing solution worked ok for my purposes. Then after seeing
+GoDaddy show up on the SOPA supporters list, and being one a
+contributing author to the legislation(*), I decided that was the last
+straw and I busted a move to finish the
+<a href="http://blog.dnsimple.com/godaddy-sopa-and-you/">switch</a>.</p>
+
+<p>Honestly, from the DNSimple side, it couldn’t have been a better
+experience. They have one-click services for managing DNS records for
+a variety of common services - including Google Apps! It took some
+time and hassle to move my domain out of GoDaddy, since their
+interface is rather clunky, and I had to unprotect things through
+Domains by Proxy to make the move, but after a couple hours everything
+was fine. DNSimple has some
+<a href="http://blog.dnsimple.com/things-to-know-about-transferring-a-domain/">tips for migrating</a>,
+no matter who your current registrar is.</p>
+
+<p>Now for the truly fun part!</p>
+
+<h1 id="automated-dns-with-chef">Automated DNS with Chef</h1>
+
+<p>Using the dnsimple cookbook is very straightforward. You create an “A”
+record like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dnsimple_record</span> <span class="s2">"cask.example.com"</span> <span class="k">do</span>
+  <span class="nb">name</span> <span class="s2">"cask"</span>
+  <span class="n">domain</span> <span class="s2">"example.com"</span>
+  <span class="n">content</span> <span class="s2">"10.10.20.20"</span>
+  <span class="n">type</span> <span class="s2">"A"</span>
+  <span class="n">action</span> <span class="ss">:create</span>
+  <span class="n">username</span> <span class="n">node</span><span class="p">[</span><span class="ss">:dnsimple</span><span class="p">][</span><span class="ss">:username</span><span class="p">]</span>
+  <span class="n">password</span> <span class="n">node</span><span class="p">[</span><span class="ss">:dnsimple</span><span class="p">][</span><span class="ss">:password</span><span class="p">]</span>
+  <span class="n">domain</span> <span class="n">node</span><span class="p">[</span><span class="ss">:dnsimple</span><span class="p">][</span><span class="ss">:domain</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Yes, that is a private network IP, and yes it is going to be
+registered in public DNS. It really doesn’t matter that much in my
+(<a href="http://serverfault.com/questions/4458/private-ip-address-in-public-dns">and others’</a>)
+opinion. Especially given that zomg, I just created a DNS entry with
+Chef!</p>
+
+<p>By default, the cookbook does assume, and use, node attributes for
+storing the username and password. This can be set by a role, but it
+means that all nodes will have the data. For my use, I decided to put
+these values in a data bag, and because they are sensitive, I used an
+<a href="http://wiki.opscode.com/display/chef/Encrypted+Data+Bags">encrypted data bag</a>.
+I also wanted to reuse the data bag from my earlier DNS example, so I
+wrote a recipe like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dnsimple</span> <span class="o">=</span> <span class="n">encrypted_data_bag_item</span><span class="p">(</span><span class="s2">"secrets"</span><span class="p">,</span> <span class="s2">"dnsimple"</span><span class="p">)</span>
+<span class="n">dns</span> <span class="o">=</span> <span class="n">data_bag_item</span><span class="p">(</span><span class="s2">"dns"</span><span class="p">,</span> <span class="s2">"int_example_com"</span><span class="p">)</span>
+<span class="c1">#</span>
+<span class="sx">%w{ host alias }</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">type</span><span class="o">|</span>
+  <span class="n">dns</span><span class="p">[</span><span class="n">type</span><span class="p">].</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">record</span><span class="o">|</span>
+    <span class="n">record_type</span> <span class="o">=</span> <span class="n">type</span> <span class="o">=~</span> <span class="sr">/^host$/</span> <span class="p">?</span> <span class="s2">"A"</span> <span class="p">:</span> <span class="s2">"CNAME"</span>
+    <span class="n">record</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">hostname</span><span class="p">,</span><span class="n">ip</span><span class="o">|</span>
+      <span class="c1">#</span>
+      <span class="n">dnsimple_record</span> <span class="s2">"</span><span class="si">#{</span><span class="n">hostname</span><span class="si">}</span><span class="s2">.</span><span class="si">#{</span><span class="n">dns</span><span class="p">[</span><span class="s1">'domain'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+        <span class="nb">name</span> <span class="n">hostname</span>
+        <span class="n">content</span> <span class="n">ip</span>
+        <span class="n">type</span> <span class="n">record_type</span>
+        <span class="n">action</span> <span class="ss">:create</span>
+        <span class="n">username</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'username'</span><span class="p">]</span>
+        <span class="n">password</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]</span>
+        <span class="n">domain</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'domain'</span><span class="p">]</span>
+      <span class="k">end</span>
+      <span class="c1">#</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="c1">#</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>I put that recipe in my “dnsserver” role, ran Chef, and boom, all my
+DNS entries are updated on systems I don’t have to manage, and all
+around the world.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% host cask.int.example.com 8.8.8.8
+Using domain server:
+Name: 8.8.8.8
+Address: 8.8.8.8#53
+Aliases:
+
+cask.int.example.com has address 10.10.20.20
+</code></pre></div></div>
+
+<p>What a wonderful redundant distributed key value store :-).</p>
+
+<p>Note that the <code class="language-plaintext highlighter-rouge">encrypted_data_bag_item</code> method used in the recipe is in a cookbook
+library. I wrote about that in an
+<a href="https://jtimberman.housepub.org/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/">earlier blog post</a>.
+It is pretty simple:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Chef</span>
+  <span class="k">class</span> <span class="nc">Recipe</span>
+    <span class="c1">#</span>
+    <span class="k">def</span> <span class="nf">encrypted_data_bag_item</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">secret_file</span> <span class="o">=</span>
+        <span class="no">Chef</span><span class="o">::</span><span class="no">EncryptedDataBagItem</span><span class="o">::</span><span class="no">DEFAULT_SECRET_FILE</span><span class="p">)</span>
+      <span class="no">DataBag</span><span class="p">.</span><span class="nf">validate_name!</span><span class="p">(</span><span class="n">bag</span><span class="p">.</span><span class="nf">to_s</span><span class="p">)</span>
+      <span class="no">DataBagItem</span><span class="p">.</span><span class="nf">validate_id!</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+      <span class="n">secret</span> <span class="o">=</span> <span class="no">EncryptedDataBagItem</span><span class="p">.</span><span class="nf">load_secret</span><span class="p">(</span><span class="n">secret_file</span><span class="p">)</span>
+      <span class="no">EncryptedDataBagItem</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="n">bag</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">secret</span><span class="p">)</span>
+    <span class="k">rescue</span> <span class="no">Exception</span>
+      <span class="no">Log</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="s2">"Failed to load data bag item: </span><span class="si">#{</span><span class="n">bag</span><span class="p">.</span><span class="nf">inspect</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">inspect</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+      <span class="k">raise</span>
+    <span class="k">end</span>
+    <span class="c1">#</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="drawbacks">Drawbacks</h2>
+
+<p>While conveniently reusing the data I already had for my DNS entries,
+the <code class="language-plaintext highlighter-rouge">dnsimple_record</code> provider does take about a second on my internet
+connection for each entry to check if it’s there. This makes the DNS
+server’s Chef client run take over a minute, where it used to be less
+than 12 seconds. Many of the entries that are in the DNS data bag are
+on systems that can add their own records, and will soon once I
+refactor things a bit.</p>
+
+<h1 id="other-uses">Other Uses</h1>
+
+<p>A number of the entries in the DNS data bag are CNAMEs for services
+that run on my home LAN server. I have internal services like
+Netatalk/Time Machine, Samba, or Munin. I also have external services
+like OpenVPN, SSH and Teamspeak. I’ll add DNSimple records for each of
+these so the recipes can automatically register new DNS entries,
+eliminating a step in bringing up a new service.</p>
+
+<h1 id="open-source-is-awesome">Open Source is Awesome</h1>
+
+<p>Chef is open source, of course, as is the
+<a href="https://github.com/heavywater/chef-dnsimple/blob/master/LICENSE">dnsimple cookbook</a>
+that I’m using. While working with the cookbook as describe above over
+the last couple days, I made some improvements and I sent a
+<a href="https://github.com/heavywater/chef-dnsimple/pull/1">pull request</a>,
+which has been merged and released. Thanks Darrin!</p>
+
+<p>If you use Chef and are looking for an API driven way to manage DNS
+entries for your systems, I strongly recommend DNSimple as a provider,
+and the <code class="language-plaintext highlighter-rouge">dnsimple</code> cookbook to tie it all together.</p>
+
+<font size="-2">(*) This isn't a political-blog-soap-box, but this
+really was the final motivator.</font>
+
+  </div><a class="u-url" href="/blog/2012/01/02/switching-to-dnsimple" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

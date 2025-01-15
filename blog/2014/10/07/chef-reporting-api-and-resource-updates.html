@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef Reporting API and Resource Updates | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef Reporting API and Resource Updates" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Have you ever wanted to find a list of nodes that updated a specific resource in a period of time? Such as “show me all the nodes in production that had an application service restart in the last hour”? Or, “which nodes have updated their apt cache recently?” For example," />
+<meta property="og:description" content="Have you ever wanted to find a list of nodes that updated a specific resource in a period of time? Such as “show me all the nodes in production that had an application service restart in the last hour”? Or, “which nodes have updated their apt cache recently?” For example," />
+<link rel="canonical" href="/blog/2014/10/07/chef-reporting-api-and-resource-updates" />
+<meta property="og:url" content="/blog/2014/10/07/chef-reporting-api-and-resource-updates" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2014-10-07T12:18:34+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef Reporting API and Resource Updates" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Have you ever wanted to find a list of nodes that updated a specific resource in a period of time? Such as “show me all the nodes in production that had an application service restart in the last hour”? Or, “which nodes have updated their apt cache recently?” For example,","url":"/blog/2014/10/07/chef-reporting-api-and-resource-updates","headline":"Chef Reporting API and Resource Updates","@type":"BlogPosting","dateModified":"2014-10-07T12:18:34+00:00","datePublished":"2014-10-07T12:18:34+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2014/10/07/chef-reporting-api-and-resource-updates"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef Reporting API and Resource Updates</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2014-10-07T12:18:34+00:00" itemprop="datePublished">
+        Oct 7, 2014
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Have you ever wanted to find a list of nodes that updated a specific resource in a period of time? Such as “show me all the nodes in production that had an application service restart in the last hour”? Or, “which nodes have updated their apt cache recently?” For example,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife report resource 'role:supermarket-app AND chef_environment:supermarket-prod' execute 'apt-get update'
+execute[apt-get update] changed in the following runs:
+app-supermarket1.example.com 2230cf30-6d95-4e43-be18-211137eaf802 @ 2014-10-07T14:07:03Z
+app-supermarket2.example.com c5e4d7bf-95a6-4385-9d8e-c6f5617ed79b @ 2014-10-07T14:14:04Z
+app-supermarket3.example.com c4c4b4bb-91b6-4f73-9876-b24b093c7f1e @ 2014-10-07T14:09:54Z
+app-supermarket4.example.com 3eb09034-7539-4a3c-af6d-5b01d35bc63f @ 2014-10-07T13:31:56Z
+app-supermarket5.example.com aa48c1d3-da91-4031-a43d-582a577cbf2d @ 2014-10-07T13:35:15Z
+Use `knife runs show` with the run UUID to get more info
+</code></pre></div></div>
+
+<p>I have released a new knife plugin to do that, but first some background.</p>
+
+<p>At CHEF, we run the community’s cookbook site, <a href="https://supermarket.getchef.com">Supermarket</a>. We monitor the systems that run the site with <a href="http://sensuapp.org">Sensu</a>. The current infrastructure runs instances on Amazon Web Services EC2, with an Elastic Load Balancer (ELB) in front of them. As a corrective action for a <a href="https://www.getchef.com/blog/2014/07/10/supermarket-intermittent-unresponsiveness-postmortem/">Supermarket outage</a>, CHEF’s operations team added a new check for elevated HTTP 500 responses from the application servers behind the ELB. One thing we found was that when Supermarket was deployed, and the <code class="language-plaintext highlighter-rouge">unicorn</code> server restarted, we would see elevated 500’s, but the site often wouldn’t actually be impacted.</p>
+
+<p>The Sensu check is run from a “relay” node. That is, it isn’t run on the application servers or the Sensu server - it’s run out of band since it’s for the ELB. One might imagine we could have similar checks for other services that aren’t run on “managed nodes,” but that’s neither here nor there. The issue is that we get an alert message that looks like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sensu Alerts	 ALERT - [i-d1dfd5d9/check-elb-backend-500] - CheckELBMetrics CRITICAL: supermarket-elb; Sum of HTTPCode_Backend_5XX is 2538.0. (expected lower than 30.0); (HTTPCode_Backend_5XX '2538.0' within 300 seconds between 2014-08-19 13:33:36 +0000 to 2014-08-19 13:38:36 +0000) [Playbook].
+</code></pre></div></div>
+
+<p>The first part, <code class="language-plaintext highlighter-rouge">[i-d1dfd5d9/check-elb-backend-500]</code> is the node name and the check that alerted. The node name here is the monitoring relay that runs the check, not the actual node or nodes where Supermarket was deployed and restarted. This is where Chef Reporting comes into play. In Chef Reporting, we can view information about recent Chef client runs, which gives us a graph like this.</p>
+
+<p><img src="/assets/images/reporting-graph.png" alt="reporting graph" /></p>
+
+<p>If we go look at the reports in the Chef Manage console, we can drill down to something like this.</p>
+
+<p><img src="/assets/images/reporting-resources.png" alt="reporting-resources" /></p>
+
+<p>This shows that unicorn was restarted in this run. That’s great, but if I’m getting this alert at a time when I’m not particularly coherent (e.g, 2AM), I want a command in a playbook that I can run to get more information quickly without having to log into the webui and click around imprecisely. CHEF publishes a <code class="language-plaintext highlighter-rouge">knife-reporting</code> gem that has a couple handy sub-commands to retrieve this run data. For example, we can list runs.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife runs list
+node_name:  i-3022aa3b
+run_id:     9eccd8f6-876b-4a57-87ac-0b3e7b7ef1e7
+start_time: 2014-08-21T17:03:56Z
+status:     started
+
+node_name:  i-a09424a8
+run_id:     f2b7871a-149b-4fd3-abdc-d74a838d719a
+start_time: 2014-08-21T17:00:23Z
+status:     success
+</code></pre></div></div>
+
+<p>Or, we can display a specific run.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife runs show eecb04fb-11df-438a-8e81-dd610eb66616
+run_detail:
+  data:
+  end_time:          2014-08-20T17:50:12Z
+  node_name:         i-9f22aa94
+  run_id:            eecb04fb-11df-438a-8e81-dd610eb66616
+  run_list:          ["role[base]","role[supermarket-app]"]
+  start_time:        2014-08-20T17:45:37Z
+  status:            success
+  total_res_count:   261
+  updated_res_count: 17
+run_resources:
+  cookbook_name:    supermarket
+  cookbook_version: 2.7.2
+  duration:         209
+  final_state:
+    enabled: false
+    running: true
+  id:               unicorn
+  initial_state:
+    enabled: false
+    running: true
+  name:             unicorn
+  result:           restart
+  type:             service
+  uri:              https://api.opscode.com/organizations/supermarket/reports/org/runs/eecb04fb-11df-438a-8e81-dd610eb66616/15
+</code></pre></div></div>
+
+<p>This is handy, but a little limited. What if I want to display only the runs containing the <code class="language-plaintext highlighter-rouge">service[unicorn]</code> resource?</p>
+
+<p>That’s where my <code class="language-plaintext highlighter-rouge">knife-report-resource</code> plugin helps. At first, it was very much specific to finding unicorn restarts on Supermarket app servers. However, I wanted to make it more general purpose as I think people would want to be able to find when arbitrary resources were updated. This is how it works:</p>
+
+<ol>
+  <li>Query the Chef Server for a particular set of nodes. For example, <code class="language-plaintext highlighter-rouge">'role:supermarket-app AND chef_environment:supermarket-prod'</code>.</li>
+  <li>Get all the Chef client runs for a specified time period up until the current time. By default, it starts from one hour ago, but we can pass an ISO8601 timestamp.</li>
+  <li>Iterate over all the runs looking for runs by the nodes that were returned by the search query, gathering the specified resource type and name.</li>
+  <li>Display some nice output with the node’s FQDN, the run’s UUID, and a timestamp.</li>
+</ol>
+
+<p>From the earlier example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife report resource 'role:supermarket-app AND chef_environment:supermarket-prod' execute 'apt-get update'
+execute[apt-get update] changed in the following runs:
+app-supermarket1.example.com 2230cf30-6d95-4e43-be18-211137eaf802 @ 2014-10-07T14:07:03Z
+app-supermarket2.example.com c5e4d7bf-95a6-4385-9d8e-c6f5617ed79b @ 2014-10-07T14:14:04Z
+app-supermarket3.example.com c4c4b4bb-91b6-4f73-9876-b24b093c7f1e @ 2014-10-07T14:09:54Z
+app-supermarket4.example.com 3eb09034-7539-4a3c-af6d-5b01d35bc63f @ 2014-10-07T13:31:56Z
+app-supermarket5.example.com aa48c1d3-da91-4031-a43d-582a577cbf2d @ 2014-10-07T13:35:15Z
+Use `knife runs show` with the run UUID to get more info
+</code></pre></div></div>
+
+<p>Then, we can drill down further into one of these runs with the <code class="language-plaintext highlighter-rouge">knife-reporting</code> plugin.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife runs show 2230cf30-6d95-4e43-be18-211137eaf802
+run_detail:
+  data:
+  end_time:          2014-10-07T14:07:03Z
+  node_name:         i-d7fed0df
+  run_id:            2230cf30-6d95-4e43-be18-211137eaf802
+  run_list:          ["role[base]","role[supermarket-app]"]
+  start_time:        2014-10-07T14:03:59Z
+  status:            success
+  total_res_count:   271
+  updated_res_count: 12
+run_resources:
+  cookbook_name:    chef-client
+  cookbook_version: 3.6.0
+  duration:         99
+  final_state:
+    enabled: true
+    running: false
+  id:               chef-client
+  initial_state:
+    enabled: true
+    running: true
+  name:             chef-client
+  result:           enable
+  type:             runit_service
+  uri:              https://api.opscode.com/organizations/supermarket/reports/org/runs/2230cf30-6d95-4e43-be18-211137eaf802/0
+...
+  cookbook_name:    supermarket
+  cookbook_version: 2.11.0
+  duration:         8506
+  final_state:
+  id:               apt-get update
+  initial_state:
+  name:             apt-get update
+  result:           run
+  type:             execute
+  uri:              https://api.opscode.com/organizations/supermarket/reports/org/runs/2230cf30-6d95-4e43-be18-211137eaf802/5
+</code></pre></div></div>
+
+<p>Hopefully you find this plugin useful! It is a RubyGem, and is available on RubyGems.org, and the source is available on GitHub.</p>
+
+<ul>
+  <li><a href="https://supermarket.getchef.com/tools/knife-report-resource">Supermarket tool page</a></li>
+  <li><a href="https://rubygems.org/gems/knife-report-resource">RubyGem page</a></li>
+  <li><a href="https://github.com/jtimberman/knife-report-resource">GitHub repository</a></li>
+</ul>
+
+  </div><a class="u-url" href="/blog/2014/10/07/chef-reporting-api-and-resource-updates" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>
