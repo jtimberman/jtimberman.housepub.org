@@ -4,20 +4,39 @@ title: About
 permalink: /about/
 ---
 
+# About
+
 I am Joshua Timberman.
 
-You may know me from the years I spent writing about, presenting on, and contributing to the DevOps movement, Chef's open source products, and similar topics.
+You may know me from the years I spent writing about, presenting on, and contributing to the DevOps movement, Chef Software's open source products, and similar topics.
 
-I am interested in technical operations, DevOps, SRE, application deployment, system automation, developer workflows, and open source communities. Historically, I wrote posts about Chef Software's products and projects I worked on while there. My tenure has come to an end, and I am working on expanding the areas where I write.
+I am interested in platform and infrastructure engineering, technical operations, DevOps, SRE, incident response, application deployment, system automation, developer workflows, and open source communities.
 
-I'm pretty easy to find on the internet:
+# Looking For Work!
 
-* <a rel="me" href="https://hachyderm.io/@jtimberman">Mastodon (Hachyderm)</a>
-* <a rel="me" href="https://bsky.app/profile/jtimberman.bsky.social">BlueSky (Bsky)</a>
-* Twitter can go fuck itself.
-* [GitHub](https://github.com/jtimberman)
+I am currently seeking employment. I am looking for a role that aligns with my background and experience. I value diversity, equity, and inclusion and am most interested in employers who are putting forth good effort into DEI.
+
+I have a wide variety of experience as a senior engineering manager, and as a senior and principal (or staff) level individual contributor. 
+
+My background is largely in or related to building and managing infrastructure at scale encompassing the following industry areas:
+
+* Site Reliability Engineering (SRE)
+* DevOps
+* Technical Web Operations
+* Systems integration
+* Infrastucture as Code
+* Incident response
+* System administration
+* IT Infrastruture
+
+My [LinkedIn Profile](https://www.linkedin.com/in/jtimberman/) has all the relevant job history and information.
+
+# Contact
+
+* [Email](mailto:me@jtimberman.name)
 * [LinkedIn](https://www.linkedin.com/in/jtimberman/)
-* [Email](mailto:blog@housepub.org)
+* [BlueSky (BSK)](https://bsky.app/profile/jtimberman.bsky.social)
+* [GitHub](https://github.com/jtimberman)
 
 # Support
 
