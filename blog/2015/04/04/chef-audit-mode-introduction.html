@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef Audit Mode Introduction | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef Audit Mode Introduction" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I’ve started working with the audit mode feature introduced in Chef version 12.1.0. Audit mode allows users to write custom rules (controls) in Chef recipes using new DSL helpers. In his ChefConf 2015 talk, “Compliance At Velocity,” James Casey goes into more of the background and reasoning for this. For now, I wanted to share a few tips with users who may be experimenting with this feature on their own, too." />
+<meta property="og:description" content="I’ve started working with the audit mode feature introduced in Chef version 12.1.0. Audit mode allows users to write custom rules (controls) in Chef recipes using new DSL helpers. In his ChefConf 2015 talk, “Compliance At Velocity,” James Casey goes into more of the background and reasoning for this. For now, I wanted to share a few tips with users who may be experimenting with this feature on their own, too." />
+<link rel="canonical" href="/blog/2015/04/04/chef-audit-mode-introduction" />
+<meta property="og:url" content="/blog/2015/04/04/chef-audit-mode-introduction" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-04-04T02:48:23+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef Audit Mode Introduction" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"I’ve started working with the audit mode feature introduced in Chef version 12.1.0. Audit mode allows users to write custom rules (controls) in Chef recipes using new DSL helpers. In his ChefConf 2015 talk, “Compliance At Velocity,” James Casey goes into more of the background and reasoning for this. For now, I wanted to share a few tips with users who may be experimenting with this feature on their own, too.","url":"/blog/2015/04/04/chef-audit-mode-introduction","headline":"Chef Audit Mode Introduction","@type":"BlogPosting","dateModified":"2015-04-04T02:48:23+00:00","datePublished":"2015-04-04T02:48:23+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2015/04/04/chef-audit-mode-introduction"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef Audit Mode Introduction</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2015-04-04T02:48:23+00:00" itemprop="datePublished">
+        Apr 4, 2015
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I’ve started working with the <a href="https://docs.chef.io/analytics.html#audit-mode">audit mode</a> feature introduced in Chef version 12.1.0. Audit mode allows users to write custom rules (controls) in Chef recipes using new DSL helpers. In his <a href="https://www.youtube.com/watch?v=g-_SW3adPwU">ChefConf 2015 talk, “Compliance At Velocity,”</a> James Casey goes into more of the background and reasoning for this. For now, I wanted to share a few tips with users who may be experimenting with this feature on their own, too.</p>
+
+<p>First, we need to update ChefDK to version 0.5.0, as that includes a version of test kitchen that <a href="https://github.com/test-kitchen/test-kitchen/pull/652">allows us to configure audit mode</a> for chef-client.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl -L https://chef.io/chef/install.sh | sudo bash -s -- -P chefdk
+</code></pre></div></div>
+
+<p>Next, create a new cookbook for the audit mode tests.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef generate cookbook audit-test
+cd audit-test
+</code></pre></div></div>
+
+<p>Then, modify the audit-test cookbook’s <code class="language-plaintext highlighter-rouge">.kitchen.yml</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  client_rb:
+    audit_mode: :audit_only
+
+platforms:
+  - name: ubuntu-12.04
+  - name: centos-6.5
+
+suites:
+  - name: default
+    run_list:
+      - recipe[audit-test::default]
+    attributes:
+</code></pre></div></div>
+
+<p>This is the generated <code class="language-plaintext highlighter-rouge">.kitchen.yml</code> with <code class="language-plaintext highlighter-rouge">client_rb</code> added to the provisioner config. Note that we must use the Ruby symbol syntax for the config value, <code class="language-plaintext highlighter-rouge">:audit_only</code>. The other valid values for <code class="language-plaintext highlighter-rouge">audit_mode</code> are <code class="language-plaintext highlighter-rouge">:enabled</code> and <code class="language-plaintext highlighter-rouge">:disabled</code>. This will be translated to an actual Ruby symbol in the generated config file (<code class="language-plaintext highlighter-rouge">/tmp/kitchen/client.rb</code>):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">audit_mode</span> <span class="ss">:audit_only</span>
+</code></pre></div></div>
+
+<p>Next, let’s write a control rule to test. Since we’re using the default <code class="language-plaintext highlighter-rouge">.kitchen.yml</code>, which includes Ubuntu 12.04 and uses SSH to connect, we can assume that SSH is running, so port 22 is listening. The following control asserts this is true.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">control_group</span> <span class="s1">'Blog Post Examples'</span> <span class="k">do</span>
+  <span class="n">control</span> <span class="s1">'SSH'</span> <span class="k">do</span>
+    <span class="n">it</span> <span class="s1">'should be listening on port 22'</span> <span class="k">do</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">port</span><span class="p">(</span><span class="mi">22</span><span class="p">)).</span><span class="nf">to</span> <span class="n">be_listening</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Now run <code class="language-plaintext highlighter-rouge">kitchen converge ubuntu</code> to run Chef, but not tear down the VM aftward - we’ll use it again for another example. Here’s the audit phase output from the Chef run:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% kitchen converge ubuntu
+Synchronizing Cookbooks:
+  - audit-test
+Compiling Cookbooks...
+Starting audit phase
+
+Blog Post Examples
+  SSH
+    should be listening on port 22
+
+Finished in 0.10453 seconds (files took 0.37536 seconds to load)
+1 example, 0 failures
+Auditing complete
+</code></pre></div></div>
+
+<p>Cool! So we have asserted that the node complies with this control by default. But what does a failing control look like? Let’s write one. Since we’re working with SSH already, let’s use the SSHd configuration. By default in the Vagrant base box we’re using, root login is permitted, so this value is present:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PermitRootLogin yes
+</code></pre></div></div>
+
+<p>However, our security policy mandates that we set this to <code class="language-plaintext highlighter-rouge">no</code>, and we want to audit that.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">control_group</span> <span class="s1">'Blog Post Examples'</span> <span class="k">do</span>
+  <span class="n">control</span> <span class="s1">'SSH'</span> <span class="k">do</span>
+    <span class="n">it</span> <span class="s1">'should be listening on port 22'</span> <span class="k">do</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">port</span><span class="p">(</span><span class="mi">22</span><span class="p">)).</span><span class="nf">to</span> <span class="n">be_listening</span>
+    <span class="k">end</span>
+
+    <span class="n">it</span> <span class="s1">'disables root logins over ssh'</span> <span class="k">do</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s1">'/etc/ssh/sshd_config'</span><span class="p">)).</span><span class="nf">to</span> <span class="n">contain</span><span class="p">(</span><span class="s1">'PermitRootLogin no'</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Rerun <code class="language-plaintext highlighter-rouge">kitchen converge ubuntu</code> and we see the validation fails.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting audit phase
+
+Blog Post Examples
+  SSH
+    should be listening on port 22
+    disables root logins over ssh (FAILED - 1)
+
+Failures:
+
+  1) Blog Post Examples SSH disables root logins over ssh
+     Failure/Error: expect(file('/etc/ssh/sshd_config')).to contain('PermitRootLogin no')
+expected File "/etc/ssh/sshd_config" to contain "PermitRootLogin no"
+     # /tmp/kitchen/cache/cookbooks/audit-test/recipes/default.rb:8:in `block (3 levels) in from_file'
+
+Finished in 0.13067 seconds (files took 0.32089 seconds to load)
+2 examples, 1 failure
+
+Failed examples:
+
+rspec  # Blog Post Examples SSH disables root logins over ssh
+[2015-04-04T03:29:41+00:00] ERROR: Audit phase failed with error message: Audit phase found failures - 1/2 controls failed
+
+Audit phase exception:
+Audit phase found failures - 1/2 controls failed
+</code></pre></div></div>
+
+<p>When we have a failure, we’ll have contextual information about the failure, including the line number in the recipe where itwas found, and a stack trace (cut from the output here), in case more information is required for debugging. To fix the test, we can simply edit the config file to have the desired setting, or we can manage the file with Chef to set the value accordingly. Either way, after updating the file, the validation will pass, and all will be well.</p>
+
+<p>We can put as many <code class="language-plaintext highlighter-rouge">control_group</code> and <code class="language-plaintext highlighter-rouge">control</code> blocks with the <code class="language-plaintext highlighter-rouge">it</code> validation rules as required to audit our policy. If we have many validations, it can be difficult to follow with all the output if there are failures. Chef’s audit mode is based on <a href="http://serverspec.org/">Serverspec</a>, which is based on <a href="http://rspec.info/">RSpec</a>. We can use the <code class="language-plaintext highlighter-rouge">filter_tag</code> configuration feature of RSpec to only run the <code class="language-plaintext highlighter-rouge">control</code> blocks or <code class="language-plaintext highlighter-rouge">it</code> statements that we’re interested in debugging. To do this, we need an <code class="language-plaintext highlighter-rouge">RSpec.configuration</code> block within the <code class="language-plaintext highlighter-rouge">control_group</code> - due to the way that audit mode is implemented, we can’t do it outside of <code class="language-plaintext highlighter-rouge">control_group</code>.</p>
+
+<p>For example, we could debug our root login configuration:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">control_group</span> <span class="s1">'Blog Post Examples'</span> <span class="k">do</span>
+  <span class="o">::</span><span class="no">RSpec</span><span class="p">.</span><span class="nf">configure</span> <span class="k">do</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span>
+    <span class="n">c</span><span class="p">.</span><span class="nf">filter_run</span> <span class="ss">focus: </span><span class="kp">true</span>
+  <span class="k">end</span>
+
+  <span class="n">control</span> <span class="s1">'SSH'</span> <span class="k">do</span>
+    <span class="n">it</span> <span class="s1">'should be listening on port 22'</span> <span class="k">do</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">port</span><span class="p">(</span><span class="mi">22</span><span class="p">)).</span><span class="nf">to</span> <span class="n">be_listening</span>
+    <span class="k">end</span>
+
+    <span class="n">it</span> <span class="s1">'disables root logins over ssh'</span><span class="p">,</span> <span class="ss">focus: </span><span class="kp">true</span> <span class="k">do</span>
+      <span class="n">expect</span><span class="p">(</span><span class="n">file</span><span class="p">(</span><span class="s1">'/etc/ssh/sshd_config'</span><span class="p">)).</span><span class="nf">to</span> <span class="n">contain</span><span class="p">(</span><span class="s1">'PermitRootLogin no'</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The key here is to pass the argument <code class="language-plaintext highlighter-rouge">focus: true</code> (or if you like hash rockets, <code class="language-plaintext highlighter-rouge">:focus =&gt; true</code>) on the <code class="language-plaintext highlighter-rouge">it</code> block. This could also be used on a <code class="language-plaintext highlighter-rouge">control</code> block:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">control</span> <span class="s1">'SSH'</span><span class="p">,</span> <span class="ss">focus: </span><span class="kp">true</span> <span class="k">do</span>
+  <span class="n">it</span> <span class="s1">'does stuff...'</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Then, when running <code class="language-plaintext highlighter-rouge">kitchen converge ubuntu</code>, we see only that validation:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting audit phase
+
+Blog Post Examples
+  SSH
+    disables root logins over ssh (FAILED - 1)
+
+Failures:
+
+  1) Blog Post Examples SSH disables root logins over ssh
+     Failure/Error: expect(file('/etc/ssh/sshd_config')).to contain('PermitRootLogin no')
+</code></pre></div></div>
+
+<p>This example is simple enough that this isn’t necessary, but if we were implementing audit mode checks for our entire security policy, that could be dozens or even hundreds of controls.</p>
+
+<p>As of this writing, audit mode is still under development, and is considered an experimental feature. There will be further information, guides, and documentation about it coming to the Chef blog and docs site, and I’ll have a post coming soon with something I’m working on, so stay tuned!</p>
+
+  </div><a class="u-url" href="/blog/2015/04/04/chef-audit-mode-introduction" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

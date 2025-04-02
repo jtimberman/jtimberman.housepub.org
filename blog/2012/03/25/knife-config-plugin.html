@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Knife Config Plugin | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Knife Config Plugin" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I created a plugin for knife that will display a specified option from Chef’s configuration object, Chef::Config. It operates with the scope of the automatically detected knife configuration file, or by passing the -c option with a configuration file." />
+<meta property="og:description" content="I created a plugin for knife that will display a specified option from Chef’s configuration object, Chef::Config. It operates with the scope of the automatically detected knife configuration file, or by passing the -c option with a configuration file." />
+<link rel="canonical" href="/blog/2012/03/25/knife-config-plugin" />
+<meta property="og:url" content="/blog/2012/03/25/knife-config-plugin" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-03-25T14:47:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Knife Config Plugin" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"I created a plugin for knife that will display a specified option from Chef’s configuration object, Chef::Config. It operates with the scope of the automatically detected knife configuration file, or by passing the -c option with a configuration file.","url":"/blog/2012/03/25/knife-config-plugin","headline":"Knife Config Plugin","@type":"BlogPosting","dateModified":"2012-03-25T14:47:00+00:00","datePublished":"2012-03-25T14:47:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/03/25/knife-config-plugin"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Knife Config Plugin</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-03-25T14:47:00+00:00" itemprop="datePublished">
+        Mar 25, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I created a plugin for knife that will display a specified option from
+Chef’s configuration object, <code class="language-plaintext highlighter-rouge">Chef::Config</code>. It operates with the
+scope of the automatically detected
+<a href="http://wiki.opscode.com/display/chef/Knife#Knife-ConfiguringYourSystemForKnife">knife configuration file</a>,
+or by passing the <code class="language-plaintext highlighter-rouge">-c</code> option with a configuration file.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>It’s a gem.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% gem install knife-config
+</code></pre></div></div>
+
+<p>You can get the <a href="https://github.com/jtimberman/knife-config">source on GitHub</a>.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>Without any options:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife config
+WARNING: No knife configuration file found
+</code></pre></div></div>
+
+<p>If an config option were specified, its default value would be printed.</p>
+
+<p>With a single option, <code class="language-plaintext highlighter-rouge">chef_server_url</code>, but no configuration file available:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife config chef_server_url
+WARNING: No knife configuration file found
+chef_server_url:  http://localhost:4000
+</code></pre></div></div>
+
+<p>In a “Chef Repository” with a <code class="language-plaintext highlighter-rouge">.chef/knife.rb</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% cd chef-repo
+% knife config chef_server_url
+chef_server_url:  https://api.opscode.com/organizations/MY_ORG
+</code></pre></div></div>
+
+<p>With a few more options:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% cd chef-repo
+% knife config chef_server_url node_name validation_client_name
+chef_server_url:  https://api.opscode.com/organizations/MY_ORG
+node_name:        jtimberman
+validation_client_name:  housepub-validator
+</code></pre></div></div>
+
+<p>With a different config file (<code class="language-plaintext highlighter-rouge">/etc/chef/client.rb</code> on the same
+system):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife config node_name -c /etc/chef/client.rb
+node_name:  imac.int.example.com
+</code></pre></div></div>
+
+<p>With <code class="language-plaintext highlighter-rouge">--all</code>, to show all the options:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife config --all
+amqp_consumer_id:               default
+amqp_host:                      0.0.0.0
+amqp_pass:                      testing
+amqp_port:                      5672
+amqp_user:                      chef
+amqp_vhost:                     /chef
+authorized_openid_identifiers:
+authorized_openid_providers:
+cache_options:
+  path:  /Users/jtimberman/.chef/checksums
+cache_type:                     BasicFile
+checksum_path:                  /var/chef/checksums
+chef_server_url:                https://api.opscode.com/organizations/housepub
+client_key:                     /Users/jtimberman/.chef/jtimberman.pem
+client_registration_retries:    5
+client_url:                     http://localhost:4042
+[output truncated, trust me, it shows them all :)]
+</code></pre></div></div>
+
+<p>Show the “knife” configuration, which includes things like cloud
+provider authentication. This doesn’t currently support showing
+sub-keys (like <code class="language-plaintext highlighter-rouge">knife[aws_access_key_id]</code>).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife config knife
+knife:
+  aws_access_key_id:      ZOMGAWS_KEY
+  aws_secret_access_key:  ZOMGAWS_SECRET
+</code></pre></div></div>
+
+<h2 id="contributing">Contributing</h2>
+
+<p>If you’d like to contribute, that’s awesome! Please create a fork,
+branch, and a pull request.
+<a href="https://github.com/jtimberman/knife-config/issues">Reporting issues</a>
+is helpful too.</p>
+
+  </div><a class="u-url" href="/blog/2012/03/25/knife-config-plugin" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

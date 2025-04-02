@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Quick Tip: ChefDK Provision | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Quick Tip: ChefDK Provision" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Earlier today, ChefDK 0.6.0 was released. In this post, I will illustrate a fairly simple walkthrough using Amazon EC2, based on information in the document. This example will include Policyfile use, too. Let’s get started." />
+<meta property="og:description" content="Earlier today, ChefDK 0.6.0 was released. In this post, I will illustrate a fairly simple walkthrough using Amazon EC2, based on information in the document. This example will include Policyfile use, too. Let’s get started." />
+<link rel="canonical" href="/blog/2015/05/15/quick-tip-chefdk-provision" />
+<meta property="og:url" content="/blog/2015/05/15/quick-tip-chefdk-provision" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-05-15T22:18:03+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Quick Tip: ChefDK Provision" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Earlier today, ChefDK 0.6.0 was released. In this post, I will illustrate a fairly simple walkthrough using Amazon EC2, based on information in the document. This example will include Policyfile use, too. Let’s get started.","url":"/blog/2015/05/15/quick-tip-chefdk-provision","headline":"Quick Tip: ChefDK Provision","@type":"BlogPosting","dateModified":"2015-05-15T22:18:03+00:00","datePublished":"2015-05-15T22:18:03+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2015/05/15/quick-tip-chefdk-provision"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Quick Tip: ChefDK Provision</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2015-05-15T22:18:03+00:00" itemprop="datePublished">
+        May 15, 2015
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Earlier today, <a href="https://www.chef.io/blog/2015/05/15/chefdk-0-6-0-released/">ChefDK 0.6.0 was released</a>. In this post, I will illustrate a fairly simple walkthrough using Amazon EC2, based on information in the <a href="https://github.com/chef/chef-dk/blob/master/PROVISION_README.md#basic-example">document</a>. This example will include Policyfile use, too. Let’s get started.</p>
+
+<p>First, install ChefDK 0.6.0. You can get it from the <a href="downloads.chef.io/chef-dk">Chef Downloads page</a>.</p>
+
+<p>Next, setup <a href="https://jtimberman.housepub.org/blog/2013/10/19/managing-multiple-aws-account-credentials/">AWS credentials</a>. Ensure that they are exported to the current shell environment.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AWS_ACCESS_KEY_ID=secrets
+AWS_SECRET_ACCESS_KEY=secrets
+AWS_DEFAULT_REGION=us-east-1
+AWS_SSH_KEY=your_ssh_key_name
+AWS_ACCESS_KEY=secrets
+AWS_SECRET_KEY=secrets
+</code></pre></div></div>
+
+<p>I’m going to use Hosted Chef as my Chef Server. I already have my user API key and configuration in <code class="language-plaintext highlighter-rouge">~/.chef</code>, and I’m going to rely on the automatic configuration detection in the <code class="language-plaintext highlighter-rouge">chef</code> command for that.</p>
+
+<p>Generate a new repository using the <code class="language-plaintext highlighter-rouge">chef generate</code> command. Further commands run from this directory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef generate repo chefdk-provision-demo
+cd chefdk-provision-demo
+</code></pre></div></div>
+
+<p>Generate a <code class="language-plaintext highlighter-rouge">provision</code> cookbook. This is the required name, and it must be in the current directory.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef generate cookbook provision
+</code></pre></div></div>
+
+<p>Edit the default recipe, <code class="language-plaintext highlighter-rouge">$EDITOR provision/recipes/default.rb</code>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">context</span> <span class="o">=</span> <span class="no">ChefDK</span><span class="o">::</span><span class="no">ProvisioningData</span><span class="p">.</span><span class="nf">context</span>
+<span class="n">with_driver</span> <span class="s1">'aws::us-west-2'</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">ssh_username: </span><span class="s1">'admin'</span><span class="p">,</span>
+  <span class="ss">use_private_ip_for_ssh: </span><span class="kp">false</span><span class="p">,</span>
+  <span class="ss">bootstrap_options: </span><span class="p">{</span>
+    <span class="ss">key_name: </span><span class="s1">'jtimberman'</span><span class="p">,</span>
+    <span class="ss">image_id: </span><span class="s1">'ami-0d5b6c3d'</span><span class="p">,</span>
+    <span class="ss">instance_type: </span><span class="s1">'m3.medium'</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="ss">convergence_options: </span><span class="n">context</span><span class="p">.</span><span class="nf">convergence_options</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">machine</span> <span class="n">context</span><span class="p">.</span><span class="nf">node_name</span> <span class="k">do</span>
+  <span class="n">machine_options</span> <span class="n">options</span>
+  <span class="n">action</span> <span class="n">context</span><span class="p">.</span><span class="nf">action</span>
+  <span class="n">converge</span> <span class="kp">true</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>To break this down, first we get the ChefDK provisioning context that will pass in options to <code class="language-plaintext highlighter-rouge">chef-provisioning</code>. Then we tell <code class="language-plaintext highlighter-rouge">chef-provisioning</code> to use the AWS driver, and in the <code class="language-plaintext highlighter-rouge">us-west-2</code> region. The options hash is used to setup the instance. We’re using <a href="https://wiki.debian.org/Cloud/AmazonEC2Image/Jessie">Debian 8</a>, which uses the <code class="language-plaintext highlighter-rouge">admin</code> user to log in, an SSH key that exists in the AWS region, the actual AMI, and finally the instance type. Then, we’re going to set the convergence options automatically from ChefDK. This is the important part that will ensure the node has the right run list.</p>
+
+<p>Generate a <code class="language-plaintext highlighter-rouge">Policyfile.rb</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef generate policyfile
+</code></pre></div></div>
+
+<p>And edit its content, <code class="language-plaintext highlighter-rouge">$EDITOR Policyfile.rb</code>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">name</span>            <span class="s2">"chefdk-provision-demo"</span>
+<span class="n">default_source</span>  <span class="ss">:community</span>
+<span class="n">run_list</span>        <span class="s2">"recipe[libuuid-user]"</span>
+<span class="n">cookbook</span>        <span class="s2">"libuuid-user"</span>
+</code></pre></div></div>
+
+<p>Here we’re simply getting the <a href="https://supermarket.chef.io/cookbooks/libuuid">libuuid-user cookbook from Supermarket</a> and applying the default recipe to the nodes that have this policy.</p>
+
+<p>The next step is to install the Policyfile. This generates the Policyfile.lock.json, and downloads the cookbooks to the cache, <code class="language-plaintext highlighter-rouge">~/.chefdk/cache/cookbooks</code>. If this isn’t run, <code class="language-plaintext highlighter-rouge">chef</code> will complain, with a reminder to run it.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef install
+</code></pre></div></div>
+
+<p>Finally, we can provision a testing system with this policy:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chef provision testing --sync -n debian-libuuid
+</code></pre></div></div>
+
+<p>This will result in output similar to this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Uploading policy to policy group testing
+Uploaded libuuid-user 1.0.1 (c3220a49)
+Compiling Cookbooks...
+Recipe: provision::default
+  * machine[debian-libuuid] action converge
+    - Create debian-libuuid with AMI ami-0d5b6c3d in us-west-2
+    - create node debian-libuuid at https://chef-api.example.com/organizations/testing
+    -   add normal.tags = nil
+    -   add normal.chef_provisioning = {"hash" =&gt; "of options"}
+    - waiting for debian-libuuid (i-251f1cec on aws::us-west-2) to be connectable (transport up and running) ...
+    - been waiting 60/120 -- sleeping 10 seconds for debian-libuuid (i-251f1cec on aws::us-west-2) to be connectable ...
+    - debian-libuuid is now connectable        - generate private key (2048 bits)
+    - create directory /etc/chef on debian-libuuid
+    - write file /etc/chef/client.pem on debian-libuuid
+    - create client debian-libuuid at clients
+    -   add public_key = "-----BEGIN PUBLIC KEY-----\n..."
+    - Add debian-libuuid to client read ACLs
+    - Add debian-libuuid to client update ACLs
+    - create directory /etc/chef/ohai/hints on debian-libuuid
+    - write file /etc/chef/ohai/hints/ec2.json on debian-libuuid
+    - write file /etc/chef/client.rb on debian-libuuid
+    - write file /tmp/chef-install.sh on debian-libuuid
+    - run 'bash -c ' bash /tmp/chef-install.sh'' on debian-libuuid
+    [debian-libuuid] Starting Chef Client, version 12.3.0
+                     [2015-05-15T22:42:43+00:00] WARN: Using experimental Policyfile feature
+                     resolving cookbooks for run list: ["libuuid-user::default@1.0.1 (c3220a4)", "libuuid-user::verify@1.0.1 (c3220a4)"]
+                     Synchronizing Cookbooks:
+                       - libuuid-user
+                     Compiling Cookbooks...
+                     Converging 1 resources
+                     Recipe: libuuid-user::default
+                       * user[libuuid] action create
+                       - create user libuuid
+
+                     Running handlers:
+                     Running handlers complete
+                     Chef Client finished, 1/1 resources updated in 5.29666495 seconds
+    - run 'chef-client -l auto' on debian-libuuid
+</code></pre></div></div>
+
+  </div><a class="u-url" href="/blog/2015/05/15/quick-tip-chefdk-provision" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

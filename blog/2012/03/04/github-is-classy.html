@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Github Is Classy | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Github Is Classy" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Fact: GitHub is classy. This isn’t just because Scott Chacon works there, either. Their handling of a security issue today was very professional. That said, I have some words to say about the issue itself and the aftermath, and things you as an application developer can do to help, and to avoid this kind of problem." />
+<meta property="og:description" content="Fact: GitHub is classy. This isn’t just because Scott Chacon works there, either. Their handling of a security issue today was very professional. That said, I have some words to say about the issue itself and the aftermath, and things you as an application developer can do to help, and to avoid this kind of problem." />
+<link rel="canonical" href="/blog/2012/03/04/github-is-classy" />
+<meta property="og:url" content="/blog/2012/03/04/github-is-classy" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-03-04T18:42:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Github Is Classy" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Fact: GitHub is classy. This isn’t just because Scott Chacon works there, either. Their handling of a security issue today was very professional. That said, I have some words to say about the issue itself and the aftermath, and things you as an application developer can do to help, and to avoid this kind of problem.","url":"/blog/2012/03/04/github-is-classy","headline":"Github Is Classy","@type":"BlogPosting","dateModified":"2012-03-04T18:42:00+00:00","datePublished":"2012-03-04T18:42:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/03/04/github-is-classy"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Github Is Classy</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-03-04T18:42:00+00:00" itemprop="datePublished">
+        Mar 4, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Fact: GitHub is classy. This isn’t just because
+<a href="https://github.com/schacon">Scott Chacon</a> works there, either. Their
+handling of a security issue today was very professional. That said, I
+have some words to say about the issue itself and the aftermath, and
+things you as an application developer can do to help, and to avoid
+this kind of problem.</p>
+
+<p><em>Disclaimer: I’m not an application developer. I am a sysadmin with a
+ diverse background in operating system security, including previously
+ held GSEC and GCUX certifications from the SANS Institute/GIAC.</em></p>
+
+<p><em>Second disclaimer: This is not an anti-Rails post. All web frameworks
+ need to be conscious of security, and take bug reports for security
+ issues seriously.</em></p>
+
+<h1 id="issue">Issue</h1>
+
+<p><em>Update - Preface: I am not talking about a security vulnerability (a
+la an exploit) in Rails. I am talking about a feature that allows
+automatically generated code to do things that are not secure and it
+is apparently on purpose and by design. This is the wrong thing to
+do. Deny by default with whitelisting is the right thing to do.</em></p>
+
+<p>There is a security issue in
+<a href="https://github.com/rails/rails/issues/5228">Ruby on Rails</a>. The bug
+is closed, but I haven’t dug into find out if the actual problem is
+fixed.</p>
+
+<p>The bug itself is very serious. It allows a malicious user to send
+arbitrary parameters to a Rails application without requiring
+whitelisting up front. In fact,
+<a href="https://github.com/rails/rails/pull/4062">three months ago an issue</a>
+was opened in the Rails project to force new applications to enforce
+whitelist mode by default. That bug was subsequently closed just a few
+days ago. I’m not going to do an analysis of the issue itself, you can go
+read the linked tickets and do further research on the issue.</p>
+
+<p><em>Update</em> I missed clarifying this. There is a second issue at hand.
+ GitHub resolved the mass assignment bug by fixing their application.
+ The second issue is that they had a vulnerability in their public key
+ form update.</p>
+
+<h2 id="resolution-and-aftermath">Resolution and Aftermath</h2>
+
+<p>You can read all about the initial resolution and retrospective on the
+<a href="https://github.com/blog/1068-public-key-security-vulnerability-and-mitigation">GitHub blog</a>.
+You can also read their
+<a href="https://github.com/blog/1069-responsible-disclosure-policy">follow-up post</a>
+on responsible disclosure.</p>
+
+<p>The manner in which they handled the situation is a class act: they
+behaved like professionals. Here’s why:</p>
+
+<ul>
+  <li>A user reported a problem with their app.</li>
+  <li>They worked with the user to resolve the problem.</li>
+  <li>The same user exploited another vulnerability to prove a point to
+the Rails project, which is against the GitHub terms of service.</li>
+  <li>GitHub suspended the user’s account in accordance with their terms
+of service.</li>
+</ul>
+
+<p>As an unauthorized breach of a computer system, what Egor Homakov did
+is illegal in the United States. It was also irresponsible and
+unprofessional. However, his intent was not malicious. I think GitHub
+did the right thing by giving him another chance in reinstating
+Mr. Homakov’s account several hours after the incident.</p>
+
+<p>GitHub has issued two apologies about this incident. First for the
+vulnerability existing in the first place, and second for not being
+clear how customers and users can responsibly disclose security
+vulnerabilities. They also committed to doing a security audit of
+their code base.</p>
+
+<p>GitHub is classy.</p>
+
+<h1 id="security">Security</h1>
+
+<p>After the above, I feel compelled to say some more things about
+security in general. You are responsible for a lot of things regarding
+the web applications in your infrastructure. One of those is security,
+and you should do everything you can to write stable, secure code.</p>
+
+<p>In a hackernews thread about this incident, Yehuda Katz said,
+“<a href="http://news.ycombinator.com/item?id=3664334">Not all security vulnerabilities can be protected automatically by a web framework</a>.”</p>
+
+<p>That is a fact. However, web frameworks should provide sane, secure
+settings by default. Those settings should be modifiable by the
+end-user, the developer. If a developer wishes to disable those
+controls, they totally have that right. I think that they need to
+understand the potential risk that they are accepting, and what impact
+that might have on the business/organization implementing the
+application.</p>
+
+<p>This is <em>exactly</em> like the default setting of Red Hat Enterprise Linux
+to enable SELinux by default on new installations. Whether you love or
+hate this default, it is sane and secure. System administrators can
+then use the system as is, or disable SELinux if that is an acceptable
+level of risk.</p>
+
+<p>Clearly in this incident, it is <em>not</em> an acceptable level of risk for
+GitHub, as they have repaired their application. It would have better
+to do that long ago, but at least it’s fixed now.</p>
+
+<p>Security and convenience are quite often polar opposites and mutually
+exclusive. This is not always the case, but it is true much of the
+time, if not most of the time. The choice for Rails to not have
+whitelisting by default is in favor of developer convenience. Yes, it
+is up to the developer to make their application secure, but that was
+already the case. This simply creates extra work for them to do so.</p>
+
+<p>Deny-all by default is the sane, correct and secure posture to take
+when building systems. This is the practice of many tools and
+operating system defaults - SELinux as mentioned, or “no open ports”
+per Ubuntu’s practice. You don’t have to agree with it, and you
+certainly can change it, but that doesn’t change the fact that it is
+<em>correct</em> and <em>sane</em>.</p>
+
+<h2 id="vulnerability-disclosure">Vulnerability Disclosure</h2>
+
+<p>There is an entire field in information technology devoted to
+vulnerability disclosure. This is typically done by people performing
+“ethical hacking” and is one thing done when a code base goes through
+a security audit. This is a field that has responsible professionals
+participating in a variety of companies, and if it sounds interesting
+to you, I recommend the variety of courses offered by the SANS
+Institute:</p>
+
+<ul>
+  <li><a href="https://www.sans.org/security-training/web-app-penetration-testing-ethical-hacking-942-mid">Web Application Penetration Testing (SEC542)</a></li>
+  <li><a href="https://www.sans.org/security-training/network-penetration-testing-ethical-hacking-937-mid">Network Penetration Testing (SEC560)</a></li>
+  <li><a href="https://www.sans.org/security-training/advanced-penetration-testing-exploits-ethical-hacking-1517-mid">Advanced Penetration Testing (SEC660)</a></li>
+</ul>
+
+<h1 id="what-you-can-do">What You Can Do</h1>
+
+<p>First of all, understand the security guidelines and best practices
+for the programming language you’re using. Doing things that are
+typesafe, or avoid buffer overflows, that kind of thing. Also
+understand and follow the security guideslines and best practices for
+the web framework you’re using. The Ruby on Rails project has a fairly
+detailed
+<a href="http://guides.rubyonrails.org/security.html">security guide</a>. If
+you’re taking shortcuts, understand the possible risks with that. If
+you don’t know the risks, or understand the guidelines, please ask
+someone in the community for help.</p>
+
+<p>I strongly recommend you also learn the security guidelines and
+associated best practices for the operating system or distribution
+that your application will run on in production. If your organization
+has operations staff, I’m sure they can help you learn and understand.
+If they don’t, they’re not doing their job :).</p>
+
+<p>Every organization and every application is different. The security
+implications are going to vary by industry. Talk to the business
+owners and find out what the level of security risk they are
+comfortable accepting.</p>
+
+<p>Above all, be a professional. Don’t flippantly close security bugs.
+Don’t be a dick on discussions about security topics.</p>
+
+<p>In other words, be classy. Like GitHub.</p>
+
+<p>Thank you.</p>
+
+  </div><a class="u-url" href="/blog/2012/03/04/github-is-classy" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

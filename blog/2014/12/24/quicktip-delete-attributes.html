@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Quick Tip: Deleting Attributes | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Quick Tip: Deleting Attributes" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I have a new goal for 2015, and that is to write at least one “Quick Tip” per week about Chef. I’ve added the category “quicktips” to make these easier to find." />
+<meta property="og:description" content="I have a new goal for 2015, and that is to write at least one “Quick Tip” per week about Chef. I’ve added the category “quicktips” to make these easier to find." />
+<link rel="canonical" href="/blog/2014/12/24/quicktip-delete-attributes" />
+<meta property="og:url" content="/blog/2014/12/24/quicktip-delete-attributes" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2014-12-24T17:00:40+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Quick Tip: Deleting Attributes" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"I have a new goal for 2015, and that is to write at least one “Quick Tip” per week about Chef. I’ve added the category “quicktips” to make these easier to find.","url":"/blog/2014/12/24/quicktip-delete-attributes","headline":"Quick Tip: Deleting Attributes","@type":"BlogPosting","dateModified":"2014-12-24T17:00:40+00:00","datePublished":"2014-12-24T17:00:40+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2014/12/24/quicktip-delete-attributes"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Quick Tip: Deleting Attributes</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2014-12-24T17:00:40+00:00" itemprop="datePublished">
+        Dec 24, 2014
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I have a new goal for 2015, and that is to write at least one “Quick Tip” per week about Chef. I’ve added the category “<a href="/blog/categories/quicktips">quicktips</a>” to make these easier to find.</p>
+
+<p>In this quick tip, I want to talk about a new feature of Chef 12. The new feature is the ability to remove an attribute from all levels (default, normal, override) on a node so it doesn’t get saved back to the Chef Server. This was brought up in <a href="https://github.com/opscode/chef-rfc/blob/master/rfc023-chef-12-attributes-changes.md#global-level-removals">Chef RFC 23</a>. The reason I don’t want to save the attribute in question back to the server is that it is a secret that I have in a <a href="https://github.com/Nordstrom/chef-vault">Chef Vault item</a>.</p>
+
+<p>I’m using <a href="https://www.datadoghq.com">Datadog</a> for my home systems, and the wonderful folks at Datadog have a <a href="https://supermarket.chef.io/cookbooks/datadog">cookbook</a> to set it up. The documentation requires that you set two attributes to authenticate, the API key, and the application key:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Secrets In Plain Text Attributes??'</span>
+<span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'application_key'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'It is probably fine.'</span>
+</code></pre></div></div>
+
+<p>I prefer to use chef-vault because <a href="https://jtimberman.housepub.org/blog/2013/09/10/managing-secrets-with-chef-vault/">I think it’s the best way</a> to manage shared secrets in Chef recipes. I still need to set the attributes for Datadog’s recipe to work, however. In order to accomplish the goal here, I will use a custom cookbook, <code class="language-plaintext highlighter-rouge">housepub-datadog</code>. It has one recipe that looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">include_recipe</span> <span class="s1">'chef-vault'</span>
+
+<span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">]</span> <span class="o">=</span> <span class="n">chef_vault_item</span><span class="p">(</span><span class="ss">:secrets</span><span class="p">,</span> <span class="s1">'datadog'</span><span class="p">)[</span><span class="s1">'data'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">]</span>
+<span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'application_key'</span><span class="p">]</span> <span class="o">=</span> <span class="n">chef_vault_item</span><span class="p">(</span><span class="ss">:secrets</span><span class="p">,</span> <span class="s1">'datadog'</span><span class="p">)[</span><span class="s1">'data'</span><span class="p">][</span><span class="s1">'chef'</span><span class="p">]</span>
+
+<span class="n">include_recipe</span> <span class="s1">'datadog::dd-agent'</span>
+
+<span class="n">ruby_block</span> <span class="s1">'smash-datadog-auth-attributes'</span> <span class="k">do</span>
+  <span class="n">block</span> <span class="k">do</span>
+    <span class="n">node</span><span class="p">.</span><span class="nf">rm</span><span class="p">(</span><span class="s1">'datadog'</span><span class="p">,</span> <span class="s1">'api_key'</span><span class="p">)</span>
+    <span class="n">node</span><span class="p">.</span><span class="nf">rm</span><span class="p">(</span><span class="s1">'datadog'</span><span class="p">,</span> <span class="s1">'application_key'</span><span class="p">)</span>
+  <span class="k">end</span>
+  <span class="n">subscribes</span> <span class="ss">:create</span><span class="p">,</span> <span class="s1">'template[/etc/dd-agent/datadog.conf]'</span><span class="p">,</span> <span class="ss">:immediately</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Let’s take a closer look at the recipe.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">include_recipe</span> <span class="s1">'chef-vault'</span>
+</code></pre></div></div>
+
+<p>Here, the <code class="language-plaintext highlighter-rouge">chef-vault</code> recipe is included to ensure everything works, and I have a dependency on <code class="language-plaintext highlighter-rouge">chef-vault</code> in my cookbook’s metadata. Next, we see the attributes set:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">]</span> <span class="o">=</span> <span class="n">chef_vault_item</span><span class="p">(</span><span class="ss">:secrets</span><span class="p">,</span> <span class="s1">'datadog'</span><span class="p">)[</span><span class="s1">'data'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">]</span>
+<span class="n">node</span><span class="p">.</span><span class="nf">default</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'application_key'</span><span class="p">]</span> <span class="o">=</span> <span class="n">chef_vault_item</span><span class="p">(</span><span class="ss">:secrets</span><span class="p">,</span> <span class="s1">'datadog'</span><span class="p">)[</span><span class="s1">'data'</span><span class="p">][</span><span class="s1">'chef'</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">secrets/datadog</code> item looks like this in plaintext:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datadog"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My datadog API key"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"chef"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Application key for the 'chef' application"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>When Chef runs, it will load the vault-encrypted data bag item, and populate the attributes that will be used in the template. This template comes from the <code class="language-plaintext highlighter-rouge">datadog::dd-agent</code> recipe, which is included next. The template from that recipe looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">template</span> <span class="s1">'/etc/dd-agent/datadog.conf'</span> <span class="k">do</span>
+  <span class="n">owner</span> <span class="s1">'root'</span>
+  <span class="n">group</span> <span class="s1">'root'</span>
+  <span class="n">mode</span> <span class="mo">0644</span>
+  <span class="n">variables</span><span class="p">(</span>
+    <span class="ss">:api_key</span> <span class="o">=&gt;</span> <span class="n">node</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'api_key'</span><span class="p">],</span>
+    <span class="ss">:dd_url</span> <span class="o">=&gt;</span> <span class="n">node</span><span class="p">[</span><span class="s1">'datadog'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span>
+  <span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Now, for the grand finale of this post, I delete the attributes that were set using a <code class="language-plaintext highlighter-rouge">ruby_block</code> resource. The timing here is important, because these attributes must be deleted after Chef has converged the template. This does get updated every run, because the ruby block is not convergent, and this is okay because the attributes are updated every run, too. I could write additional logic to make this convergent, but I’m okay with the behavior. The <code class="language-plaintext highlighter-rouge">subscribes</code> ensures that as soon as the template is written, the node object is updated to remove the attributes. Otherwise, this happens next after the <code class="language-plaintext highlighter-rouge">dd-agent</code> recipe.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ruby_block</span> <span class="s1">'smash-datadog-auth-attributes'</span> <span class="k">do</span>
+  <span class="n">block</span> <span class="k">do</span>
+    <span class="n">node</span><span class="p">.</span><span class="nf">rm</span><span class="p">(</span><span class="s1">'datadog'</span><span class="p">,</span> <span class="s1">'api_key'</span><span class="p">)</span>
+    <span class="n">node</span><span class="p">.</span><span class="nf">rm</span><span class="p">(</span><span class="s1">'datadog'</span><span class="p">,</span> <span class="s1">'application_key'</span><span class="p">)</span>
+  <span class="k">end</span>
+  <span class="n">subscribes</span> <span class="ss">:create</span><span class="p">,</span> <span class="s1">'template[/etc/dd-agent/datadog.conf]'</span><span class="p">,</span> <span class="ss">:immediately</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Let’s see this in action:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>managed-node$ chef-client
+...
+Recipe: housepub-datadog::default
+  * ruby_block[smash-datadog-auth-attributes] action run
+    - execute the ruby block smash-datadog-auth-attributes
+...
+workstation% knife node show managed-node -a datadog.api_key -a datadog.application_key
+managed-node:
+  datadog.api_key:
+  datadog.application_key:
+</code></pre></div></div>
+
+<p><strong>Bonus quick tip!</strong> <code class="language-plaintext highlighter-rouge">knife node show</code> can take the <code class="language-plaintext highlighter-rouge">-a</code> option multiple times to display more attributes. I just discovered this in writing this post, and I don’t know when it was added. For sure in Chef 12.0.3, so you should just upgrade anyway ;).</p>
+
+<p><em>Update</em> This <a href="https://github.com/opscode/chef/commit/4133160972a9972a9a062579504faa40eaa4c8db">feature was added</a> by <a href="https://twitter.com/RanjibDey">Awesome Chef Ranjib Dey</a>.</p>
+
+  </div><a class="u-url" href="/blog/2014/12/24/quicktip-delete-attributes" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

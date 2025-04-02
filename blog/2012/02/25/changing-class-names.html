@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Changing Class Names | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Changing Class Names" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="If you change a class name in your library, do a major version change! You don’t know who is using your library, even the undocumented parts." />
+<meta property="og:description" content="If you change a class name in your library, do a major version change! You don’t know who is using your library, even the undocumented parts." />
+<link rel="canonical" href="/blog/2012/02/25/changing-class-names" />
+<meta property="og:url" content="/blog/2012/02/25/changing-class-names" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-02-25T09:39:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Changing Class Names" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"If you change a class name in your library, do a major version change! You don’t know who is using your library, even the undocumented parts.","url":"/blog/2012/02/25/changing-class-names","headline":"Changing Class Names","@type":"BlogPosting","dateModified":"2012-02-25T09:39:00+00:00","datePublished":"2012-02-25T09:39:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/02/25/changing-class-names"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Changing Class Names</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-02-25T09:39:00+00:00" itemprop="datePublished">
+        Feb 25, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>If you change a class name in your library, <em>do a major version
+change</em>! You don’t know who is using your library, even the
+undocumented parts.</p>
+
+<h2 id="background">Background</h2>
+
+<p>Recently, we had a post on the
+<a href="http://lists.opscode.com">Chef mailing list</a> that using bluepill for
+the Chef Server daemon process(es) was broken. Upon further
+investigation of the output from
+<a href="https://gist.github.com/1847128">Chef debug output</a>, it appeared to
+be an issue with
+<a href="https://github.com/arya/bluepill/issues/132">Bluepill itself</a>, but
+after looking into that ticket, the <a href="http://rubygems.org/gems/daemons">daemons gem</a> had made a change.</p>
+
+<p>Out of curiosity, I was compelled to find out what the source of the
+change in the daemons gem was. This lead to a yak shave, as first, I
+had to look up the <a href="http://rubygems.org/gems/daemons">daemons gem</a> on
+RubyGems.org to try and find the source. The author of the gem still
+uses RubyForge rather than GitHub. That’s fine, but it means I have to
+do some link-spelunking to find where the <a href="http://rubyforge.org/projects/daemons">source code lives</a>.</p>
+
+<p>Now I take a look at the change log:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Release 1.1.8: February 7, 2012
+rename to daemonization.rb to daemonize.rb (and Daemonization to Daemonize) to ensure compatibility.
+
+Release 1.1.7: February 6, 2012
+start_proc: Write out the PID file in the newly created proc to avoid race conditions.
+daemonize.rb: remove to simplify licensing (replaced by daemonization.rb).
+
+Release 1.1.6: January 18, 2012
+Add the :app_name option for the "call" daemonization mode.
+
+Release 1.1.5: December 19, 2011
+Catch the case where the pidfile is empty but not deleted and restart
+the app (thanks to Rich Healey)
+</code></pre></div></div>
+
+<p>I then went to the ticket tracker to find out what the source of the
+changes might be. Fortunately, there was an open issue that I could
+<a href="http://rubyforge.org/tracker/index.php?func=detail&amp;aid=29516&amp;group_id=524&amp;atid=2084">reference</a>.</p>
+
+<p>My question (which I posted to the ticket) is why wouldn’t renaming a
+class cause the author to do a new major version? This way other Gems
+that rely on this as a dependency could use the paranoia operator,
+<code class="language-plaintext highlighter-rouge">~&gt;</code> so the broken class name wouldn’t break usage elsewhere.</p>
+
+<p>I’m glad that the daemons gem author did the right thing and yanked
+the broken version. Open source worked well here. The process of
+finding this was a bit slower than it should have been, and I think
+that the bluepill maintainers moved too quickly to “resolve” the
+issue, rather than post their concern about the class naming. Kudos to
+thuehlinger for fixing his gem, though.</p>
+
+  </div><a class="u-url" href="/blog/2012/02/25/changing-class-names" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

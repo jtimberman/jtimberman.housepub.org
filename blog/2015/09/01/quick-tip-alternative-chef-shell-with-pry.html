@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Quick Tip: Alternative Chef Shell With Pry | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Quick Tip: Alternative Chef Shell With Pry" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This quick tip brought to you by the letters “p,” “r,” and “y.”" />
+<meta property="og:description" content="This quick tip brought to you by the letters “p,” “r,” and “y.”" />
+<link rel="canonical" href="/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry" />
+<meta property="og:url" content="/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2015-09-01T23:22:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Quick Tip: Alternative Chef Shell With Pry" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"This quick tip brought to you by the letters “p,” “r,” and “y.”","url":"/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry","headline":"Quick Tip: Alternative Chef Shell With Pry","@type":"BlogPosting","dateModified":"2015-09-01T23:22:00+00:00","datePublished":"2015-09-01T23:22:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Quick Tip: Alternative Chef Shell With Pry</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2015-09-01T23:22:00+00:00" itemprop="datePublished">
+        Sep 1, 2015
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This quick tip brought to you by the letters “p,” “r,” and “y.”</p>
+
+<p>You can start up a pry session in the context of a Chef recipe easily by using <code class="language-plaintext highlighter-rouge">chef-apply</code>. The pry gem is bundled with the Chef omnibus package, so it’s immediately available.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">chef</span><span class="o">-</span><span class="n">apply</span> <span class="o">-</span><span class="n">e</span> <span class="s1">'require "pry"; binding.pry'</span>
+</code></pre></div></div>
+
+<p>This will result in a prompt like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt;
+</code></pre></div></div>
+
+<p>This is a recipe! Use <code class="language-plaintext highlighter-rouge">pry</code>’s <code class="language-plaintext highlighter-rouge">ls</code> command:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; ls
+Chef::EncryptedDataBagItem::CheckEncrypted#methods: encrypted?
+Chef::DSL::DataQuery#methods: data_bag  data_bag_item  search
+Chef::DSL::PlatformIntrospection#methods: platform?  platform_family?  value_for_platform  value_for_platform_family
+Chef::DSL::IncludeRecipe#methods: include_recipe  load_recipe  require_recipe
+*** SNIP ***
+
+2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; cd node
+2.1.6 (node[localhost.example.com]):1 &gt; ls
+*** SNIP ***
+2.1.6 (node[localhost.example.com]):1 &gt; exit
+2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt;
+</code></pre></div></div>
+
+<p>Write a resource:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; file "/tmp/hello_world" do
+2.1.6 (#&lt;Chef::Recipe&gt;):0 *   content "I'm in pry!"
+2.1.6 (#&lt;Chef::Recipe&gt;):0 * end
+</code></pre></div></div>
+
+<p>This will return the <code class="language-plaintext highlighter-rouge">file[/tmp/hello_world]</code> resource. It doesn’t run Chef, but we can do that in one of two ways: exit pry, or send the create action to the resource.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; resources("file[/tmp/hello_world]").run_action :create
+Recipe: (chef-apply cookbook)::(chef-apply recipe)
+  * file[/tmp/hello_world] action create
+    - create new file /tmp/hello_world
+    - update content in file /tmp/hello_world from none to 3a5417
+    --- /tmp/hello_world  2015-09-01 08:35:18.000000000 -0600
+    +++ /tmp/.hello_world20150901-42665-11bwurx   2015-09-01 08:35:18.000000000 -0600
+    @@ -1 +1,2 @@
+</code></pre></div></div>
+
+<p>If we write multiple resources, we’d have to send that action to every one of them. Exiting pry will work, but then we are, of course, no longer in the pry session. This is not ideal, but hey, it’s not like we’re in <code class="language-plaintext highlighter-rouge">chef-shell</code>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">chef-apply</code> program runs in “solo mode.”</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; Chef::Config.solo
+=&gt; true
+</code></pre></div></div>
+
+<p>However, it may be useful to debug things through the Chef Server API. We will want to do two things. First, load a config file like <code class="language-plaintext highlighter-rouge">.chef/knife.rb</code>. We can verify the Chef Server we want is configured by checking <code class="language-plaintext highlighter-rouge">Chef::Config[:chef_server_url]</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; Chef::Config[:chef_server_url]
+=&gt; "https://localhost:443"
+2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; Chef::Config.from_file('.chef/knife.rb')
+=&gt; "client"
+2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; Chef::Config[:chef_server_url]
+=&gt; "https://api.opscode.com/organizations/joshtest"
+</code></pre></div></div>
+
+<p>Cool. Now let’s borrow <code class="language-plaintext highlighter-rouge">chef-shell</code>’s helper methods for interacting with the API.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'chef/shell/ext'
+Chef::Shell::Extensions.extend_context_object(self)
+</code></pre></div></div>
+
+<p>And now we can use, for example, <code class="language-plaintext highlighter-rouge">api.get</code> or <code class="language-plaintext highlighter-rouge">nodes.all</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2.1.6 (#&lt;Chef::Recipe&gt;):0 &gt; api.get('/users')
+=&gt; [{"user"=&gt;{"username"=&gt;"joshtest"}}, {"user"=&gt;{"username"=&gt;"jtimberman"}}]
+</code></pre></div></div>
+
+<p>Of course, we can get a lot of this functionality by starting up <code class="language-plaintext highlighter-rouge">chef-shell</code> and loading pry, but I think this was more fun :–).</p>
+
+<p>Learn more about <a href="https://pry.github.io/">pry</a>.</p>
+
+  </div><a class="u-url" href="/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

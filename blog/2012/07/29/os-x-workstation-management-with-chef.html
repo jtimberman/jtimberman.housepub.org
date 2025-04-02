@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>OS X Workstation Management with Chef | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="OS X Workstation Management with Chef" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Update: This post is old and outdated. I’ll have another post in 2015 about workstation management with Chef." />
+<meta property="og:description" content="Update: This post is old and outdated. I’ll have another post in 2015 about workstation management with Chef." />
+<link rel="canonical" href="/blog/2012/07/29/os-x-workstation-management-with-chef" />
+<meta property="og:url" content="/blog/2012/07/29/os-x-workstation-management-with-chef" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-07-29T12:36:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="OS X Workstation Management with Chef" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Update: This post is old and outdated. I’ll have another post in 2015 about workstation management with Chef.","url":"/blog/2012/07/29/os-x-workstation-management-with-chef","headline":"OS X Workstation Management with Chef","@type":"BlogPosting","dateModified":"2012-07-29T12:36:00+00:00","datePublished":"2012-07-29T12:36:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/07/29/os-x-workstation-management-with-chef"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">OS X Workstation Management with Chef</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-07-29T12:36:00+00:00" itemprop="datePublished">
+        Jul 29, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><strong>Update: This post is old and outdated. I’ll have another post in 2015 about workstation management with Chef.</strong></p>
+
+<p>I have written
+<a href="/blog/2011/04/03/managing-my-workstations-with-chef/">twice</a>
+<a href="/blog/2011/09/04/update-to-managing-my-workstations/">before</a> about
+managing my OS X workstations with Chef. The first post has one of my
+highest hit counts of any blog post, so it is certainly a topic of
+interest to people.</p>
+
+<p>This post is a rewrite of the original, and now has an
+<a href="https://github.com/jtimberman/workstation-chef-repo">accompanying Chef Repository</a>
+where all the code I talk about is available.</p>
+
+<h2 id="background">Background</h2>
+
+<p>The current incarnation of this repository lives in the more general
+private Chef Repository I use for my home network, since I manage more
+than just workstations with Chef. I have used the main recipe
+(workstation::default) with great success on several Mac OS X systems:
+Macbook Pro, iMac, and Macbook Air running various versions between
+10.6 and 10.8. I recently used it to configure a replacement Macbook
+Pro for work, and then again after upgrading to
+<a href="/blog/2012/07/27/mountain-lion-upgrade/">Mountain Lion</a>.</p>
+
+<h2 id="the-setup">The Setup</h2>
+
+<p>Also known as “bootstrapping Chef”, the system needs to be set up to
+run Chef.</p>
+
+<ul>
+  <li>Opscode Hosted Chef is my Chef Server</li>
+  <li>I run everything as a non-privileged user</li>
+</ul>
+
+<h3 id="installation">Installation</h3>
+
+<p>I use the Opscode
+<a href="http://opscode.com/chef/install">full-stack installer</a> on all my
+systems, including OS X, because it includes everything Chef needs,
+including Ruby.</p>
+
+<p>Whether you’re unpacking a brand new Mac, or using an existing system,
+use this command:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-L</span> https://opscode.com/chef/install.sh | <span class="nb">sudo </span>bash
+</code></pre></div></div>
+
+<p>Symbolic links are created for Chef’s binaries in <code class="language-plaintext highlighter-rouge">/usr/bin</code>.</p>
+
+<p><strong>Mountain Lion Note</strong>: I did this on Lion before upgrading to
+  Mountain Lion. Apple removed X11 from Mountain Lion, and the
+  installer opens an xterm, so I don’t know how/if this works the
+  same on a brand new Mountain Lion system.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>Next, create a configuration file for the Chef Server, and copy the
+validation key into place. If this is a new Mac, you’ll need to get
+your validation key copied to the system.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo mkdir</span> <span class="nt">-p</span> /etc/chef
+<span class="nb">sudo </span>vi /etc/chef/client.rb
+<span class="nb">cp</span> ~/Downloads/ORGNAME-validation.pem /etc/chef/validation.pem
+</code></pre></div></div>
+
+<p>I am using Opscode Hosted Chef, and this is my <code class="language-plaintext highlighter-rouge">/etc/chef/client.rb</code>.
+The path options are so Chef writes its files in a location my user
+has write access.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">base_dir</span> <span class="o">=</span> <span class="s2">"/Users/USERNAME/.chef"</span>
+<span class="n">chef_server_url</span>         <span class="s1">'https://api.opscode.com/organizations/ORGNAME'</span>
+<span class="n">validation_client_name</span>  <span class="s1">'ORGNAME-validator'</span>
+<span class="n">checksum_path</span>           <span class="s2">"</span><span class="si">#{</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/checksum"</span>
+<span class="n">file_cache_path</span>         <span class="s2">"</span><span class="si">#{</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/cache"</span>
+<span class="n">file_backup_path</span>        <span class="s2">"</span><span class="si">#{</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/backup"</span>
+<span class="n">cache_options</span><span class="p">({</span><span class="ss">:path</span> <span class="o">=&gt;</span> <span class="s2">"</span><span class="si">#{</span><span class="n">base_dir</span><span class="si">}</span><span class="s2">/cache/checksums"</span><span class="p">,</span> <span class="ss">:skip_expires</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">})</span>
+</code></pre></div></div>
+
+<h2 id="the-repository">The Repository</h2>
+
+<p>I have made
+<a href="https://github.com/jtimberman/workstation-chef-repo">the repository available on GitHub</a>.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone git://github.com/jtimberman/workstation-chef-repo.git
+</code></pre></div></div>
+
+<p>Normally, systems that are configured with Chef wouldn’t have the Chef
+Repository on them. For the purpose of this post, clone the
+repository to the local system. Presumably, one might do further
+development to it.</p>
+
+<p>Before we upload it and run Chef, let’s explore what is included.</p>
+
+<h2 id="data-bags">Data Bags</h2>
+
+<p>The repository contains two data bags with a single item each. One is
+for the local user, the other is for the workstation setup.</p>
+
+<p>The USERNAME should be changed to the local user that is being
+configured on the workstation. To ensure that the correct value is
+used, run the following and use the value returned.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% ruby -retc -e 'puts Etc.getlogin'
+jtimberman
+</code></pre></div></div>
+
+<p>Thus, I use <code class="language-plaintext highlighter-rouge">jtimberman</code> for my systems.</p>
+
+<p>The user data bag item is used in two cookbooks, users and
+workstation. This is described below under Cookbooks.</p>
+
+<p>The workstation data bag item contains various data about the
+workstation itself, software that should be installed, property list
+files dropped off, etc. The JSON file in the repository contains several
+examples. Modify this as required for your own system.</p>
+
+<h2 id="roles">Roles</h2>
+
+<p>There are three roles.</p>
+
+<h3 id="base">base</h3>
+
+<p>This is the role I apply on <em>all</em> my systems, not just workstations.
+Aside from the contents of the role file in the repository, I also set
+attributes across my systems for a variety of other purposes like
+postfix, munin, ntp and so forth. For the workstation setup purposes,
+it contains the attributes I use for installing Ruby under Rbenv, and
+the gems I want available on all my systems that aren’t project
+specific (I use <a href="http://gembundler.com">bundler</a> for those).</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">name</span> <span class="s2">"base"</span>
+<span class="n">description</span> <span class="s2">"Base role for all nodes"</span>
+<span class="n">override_attributes</span><span class="p">(</span>
+  <span class="s2">"ruby_build"</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="s2">"git_ref"</span> <span class="o">=&gt;</span> <span class="s2">"v20120524"</span><span class="p">,</span>
+    <span class="s2">"upgrade"</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span>
+    <span class="s2">"install_pkgs"</span> <span class="o">=&gt;</span> <span class="p">[]</span>
+  <span class="p">},</span>
+  <span class="s2">"rbenv"</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="s2">"install_pkgs"</span> <span class="o">=&gt;</span> <span class="p">[],</span>
+    <span class="s2">"user_installs"</span> <span class="o">=&gt;</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">"user"</span> <span class="o">=&gt;</span> <span class="s2">"USERNAME"</span><span class="p">,</span>
+        <span class="s2">"rubies"</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s2">"1.9.3-p194"</span><span class="p">],</span>
+        <span class="s2">"global"</span> <span class="o">=&gt;</span> <span class="s2">"1.9.3-p194"</span><span class="p">,</span>
+        <span class="s2">"gems"</span> <span class="o">=&gt;</span> <span class="p">{</span>
+          <span class="s2">"1.9.3-p194"</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span> <span class="o">=&gt;</span> <span class="s2">"bundler"</span><span class="p">,</span> <span class="s2">"version"</span> <span class="o">=&gt;</span> <span class="s2">"1.1.1"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span> <span class="o">=&gt;</span> <span class="s2">"git-up"</span><span class="p">},</span>
+          <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Edit the list of gems as required for your preferences. The ones
+included in the role are what I find useful or required for my day to
+day work on Chef and Chef-related projects (like
+<a href="https://github.com/opscode-cookbooks">opscode-cookbooks</a>).</p>
+
+<p>The base role does not have a run list. It is included instead by OS
+specific roles that I apply to Ubuntu or OS X systems respectively. As
+this is a post for my OS X workstations, let’s look at that role next.</p>
+
+<h3 id="mac_os_x">mac_os_x</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">mac_os_x</code> role is applied on all my OS X systems. Of note, it
+includes the base role, and the homebrew recipe. The homebrew cookbook
+includes a package resource provider that replaces the Chef default
+for OS X, macports, with homebrew.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">name</span> <span class="s2">"mac_os_x"</span>
+<span class="n">description</span> <span class="s2">"Role applied to all Mac OS X systems."</span>
+<span class="n">run_list</span><span class="p">(</span>
+  <span class="s2">"role[base]"</span><span class="p">,</span>
+  <span class="s2">"recipe[build-essential]"</span><span class="p">,</span>
+  <span class="s2">"recipe[homebrew]"</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>This role probably doesn’t need to be edited.</p>
+
+<h3 id="workstation">workstation</h3>
+
+<p>This is the role of interest, which contains the workstation specific
+run list and attributes.</p>
+
+<p>The role itself is very long, so I won’t include it here. You can view it
+<a href="https://github.com/jtimberman/workstation-chef-repo/tree/master/roles/workstation.rb">in the repository</a>.</p>
+
+<p>Do note that <code class="language-plaintext highlighter-rouge">recipe[mac_os_x::firewall]</code> requires root access, and
+will prompt for the sudo password (and pause the whole run until entered).</p>
+
+<p>Edit the <code class="language-plaintext highlighter-rouge">mac_os_x</code> settings as required for your own preferences.
+Edit other attributes as required for software you wish to use or
+install.</p>
+
+<h2 id="cookbooks">Cookbooks</h2>
+
+<p>The repository uses a number of cookbooks, most of which are published
+on the Chef Community site as well. I’m not going to describe all the
+cookbooks in this post, just the ones that are most relevant for
+workstation setup.</p>
+
+<h3 id="development-essentials">Development Essentials</h3>
+
+<p>These are:</p>
+
+<ul>
+  <li>build-essential</li>
+  <li>homebrew</li>
+  <li>git</li>
+  <li>ruby_build</li>
+  <li>rbenv</li>
+</ul>
+
+<p>On OS X, <code class="language-plaintext highlighter-rouge">build-essential</code> will install
+<a href="https://github.com/kennethreitz/osx-gcc-installer">Kenneth Reitz’s OS X GCC installer</a></p>
+<ul>
+  <li>XCode is <em>not required</em>. Of course, you may have other reasons why
+you want to have XCode, and that is outside the scope of this
+repository. If so, remove the build-essential recipe from the roles.</li>
+</ul>
+
+<p>The homebrew cookbook uses
+<a href="http://mxcl.github.com/homebrew/">Homebrew</a> as the default package
+provider on OS X. The default recipe will install Homebrew, Git with homebrew, and
+ensure that the formulae are updated.</p>
+
+<p><strong>IMPORTANT NOTE</strong> Homebrew recently “broke”
+  (<a href="https://github.com/mxcl/homebrew/issues/13299">in my opinion</a>) the
+  output of <code class="language-plaintext highlighter-rouge">brew info</code>. I manually patched <a href="https://github.com/mxcl/homebrew/pull/13300/files">my local copy of Library/Homebrew/cmd/info.rb</a> after discovering
+  this halfway through setup of my new system.</p>
+
+<p>The git cookbook installs git using
+<a href="https://code.google.com/p/git-osx-installer/">the Git OS X installer</a>,
+and the git binary will be <code class="language-plaintext highlighter-rouge">/usr/bin/git</code>. This is redundant with git
+installed from homebrew, but at some point I had issues and I don’t
+remember if they were resolved. If you wish to use git from homebrew,
+use <code class="language-plaintext highlighter-rouge">/usr/local/bin/git</code> instead.</p>
+
+<p>The ruby_build and rbenv cookbooks are by Fletcher Nichol, and are
+quite excellent for installing per-user Rubies of a specific version,
+and gems using the <code class="language-plaintext highlighter-rouge">rbenv_gem</code> LWRP. The <code class="language-plaintext highlighter-rouge">base</code> role has the
+attributes set up for how I like this, YMMV.</p>
+
+<h3 id="users">users</h3>
+
+<p>I use an older, modified version of Opscode’s <code class="language-plaintext highlighter-rouge">users</code> cookbook, pre
+<code class="language-plaintext highlighter-rouge">users_manage</code> LWRP. The recipe adds capability for distributing
+arbitrary files, such as dotfiles for users. To use this, create a
+“files” section of the users data bag item. The USERNAME.json item
+includes examples of this. Each file needs to be copied to
+<code class="language-plaintext highlighter-rouge">cookbooks/users/files/default/USERNAME/</code> as the source file name used
+in the data bag item.</p>
+
+<h3 id="workstation-1">workstation</h3>
+
+<p>The workstation cookbook has a recipe that does all the work of
+reading the workstation data bag item and setting up the system per
+the data available.</p>
+
+<p>The README.md in the cookbook contains detailed information about its
+use, and the data bag item already has the structure to get started.</p>
+
+<p>If the <code class="language-plaintext highlighter-rouge">plists</code> array is used, then each plist file should be copied
+into the <code class="language-plaintext highlighter-rouge">files/default/</code> directory.</p>
+
+<h3 id="mac_os_x-1">mac_os_x</h3>
+
+<p>My <a href="http://community.opscode.com/cookbooks/mac_os_x">mac_os_x</a>
+cookbook has two LWRPs that I use elsewhere in this repository:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">mac_os_x_plist</code> - drops off property list (plist) files in <code class="language-plaintext highlighter-rouge">~/Library/Preferences</code></li>
+  <li><code class="language-plaintext highlighter-rouge">mac_os_x_userdefaults</code> - writes OS X user settings with the <code class="language-plaintext highlighter-rouge">defaults(1)</code> system</li>
+</ul>
+
+<p>The plist files used by <code class="language-plaintext highlighter-rouge">mac_os_x_plist</code> should be added in the
+<code class="language-plaintext highlighter-rouge">files/default</code> directory of the cookbook where the resource is used
+in a recipe.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">mac_os_x::settings</code> recipe will read the
+<code class="language-plaintext highlighter-rouge">node['mac_os_x']['settings']</code> attribute for user defaults to apply.</p>
+
+<p>See the <code class="language-plaintext highlighter-rouge">mac_os_x</code> cookbook’s README for more information.</p>
+
+<h3 id="applications">Applications</h3>
+
+<p>The following are application specific cookbooks that I use:</p>
+
+<ul>
+  <li>iterm2</li>
+  <li>virtualbox</li>
+  <li>ghmac</li>
+  <li>1password</li>
+  <li>xquartz</li>
+</ul>
+
+<p>The iTerm2 cookbook will set up iTerm 2 and optionally add tmux
+integration. I
+<a href="/blog/2012/01/28/iterm2-with-tmux/">wrote about this awhile back</a>.</p>
+
+<p>We use <a href="http://vagrantup.com">Vagrant</a> extensively at Opscode, which
+requires VirtualBox. This recipe will install it per the attributes
+set in the workstation role.</p>
+
+<p>Install <a href="http://mac.github.com">GitHub for Mac</a> with the ghmac
+cookbook. Local setup for it is on your own.</p>
+
+<p>I have 1password in here because I used to install it from the zip
+file, but I may remove this at some point since I install it from the
+Mac App Store now.</p>
+
+<p>Note that the versions of these apps may be old, but they have
+Sparkle.framework or can otherwise update themselves to newer versions
+easily. Click the buttons, it’s cool.</p>
+
+<p>I don’t have a recipe for managing application installation through
+the Mac App Store. It’s really not that hard to fire up the app and
+click the “Install” button next to the apps you want though.
+Seriously, it would take longer to figure out a command-line or API
+way to do this, if it’s even possible. Just click the button.</p>
+
+<h3 id="others">Others</h3>
+
+<p>The other cookbooks in the repository are there as dependencies and
+may or may not be used specifically.</p>
+
+<h2 id="upload-repository-run-chef">Upload Repository, Run Chef</h2>
+
+<p>Once it is cloned, all the components need to be uploaded to the Chef
+Server with Knife. As that is installed with Chef, it will be
+available. The knife config file and user key do need to be copied to
+<code class="language-plaintext highlighter-rouge">.chef</code> in the chef-repo. If necessary, download them from Opscode
+Hosted Chef (or your Chef Server).</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>workstation-chef-repo
+<span class="nb">mkdir</span> .chef
+<span class="nb">cp</span> ~/Downloads/knife.rb .chef
+<span class="nb">cp</span> ~/Downloads/USERNAME.pem .chef
+</code></pre></div></div>
+
+<p>Make your changes to the data bags and roles. I’ll wait here.</p>
+
+<p>Then, upload everything.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>knife data bag create <span class="nb">users
+</span>knife data bag create apps
+knife data bag from file <span class="nb">users </span>USERNAME.json
+knife data bag from file apps workstation.json
+knife role from file base.rb mac_os_x.rb workstation.rb
+knife cookbook upload <span class="nt">-a</span>
+</code></pre></div></div>
+
+<p>Finally, run Chef!</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% whoami
+jtimberman
+% chef-client
+INFO: *** Chef 10.12.0 ***
+... loads of output, hooray ...
+INFO: Chef Run complete in 45.116912 seconds
+</code></pre></div></div>
+
+<h2 id="faq">FAQ</h2>
+
+<p>These aren’t necessarily questions anyone asked, but a more preemptive
+FAQ :).</p>
+
+<h3 id="this-seems-heavyweight-why-all-this-effort">This seems heavyweight, why all this effort?</h3>
+
+<p>As a sysadmin, I want to do something once and automate it afterward.
+That includes all the stuff I need to do to have a useful, usable work
+environment. This means that when I get a new computer, or have to
+wipe and reinstall (rare, but happens), I can get back to a productive
+environment very quickly.</p>
+
+<p>I have three OS X systems I use regularly (work laptop, personal
+laptop, family iMac). Having them in a Chef Server gives me access to
+information about these systems easily with knife.</p>
+
+<p>Also, this post is focused specifically on OS X, however this setup
+works pretty much as is on Linux. I simply don’t use Linux as a
+desktop OS, but I do have “workstation-like” systems that I SSH into,
+and this is generally fine for those.</p>
+
+<h3 id="why-chef-server-why-not-chef-solo">Why Chef Server? Why not Chef Solo?</h3>
+
+<p>Honestly, I don’t actually use Chef Solo except as a way to setup a
+<a href="http://wiki.opscode.com/display/chef/Installing+Chef+Server+using+Chef+Solo">Chef Server</a>.
+Since I use Chef Client/Chef Server so often, it is second nature for
+me to do it. You’re free to adapt this to work with Solo.</p>
+
+<h3 id="will-you-support-windows-with-this-repository">Will you support Windows with this repository?</h3>
+
+<p>No. I don’t use Windows as a workstation/desktop anymore.</p>
+
+<p>It might just work on Windows though. It did once, but I haven’t tried
+in a few months.</p>
+
+<h3 id="i-want-to-make-this-moar-awesome-will-you-merge-my-pull-request">I want to make this moar awesome, will you merge my pull request?</h3>
+
+<p>Thank you. I appreciate that you want to help me, or other members of
+the community. However I consider this pretty much “feature complete”,
+as it meets all my needs, and I don’t plan to merge any pull requests.</p>
+
+<p>For individual cookbooks, they have their own repositories linked from
+their pages on the Chef Community site.</p>
+
+<h3 id="why-do-you-have-redundancy-or-inconsistent-use">Why do you have redundancy or inconsistent use?</h3>
+
+<p>Such as plist file location, dmg installation, etc.</p>
+
+<p>Because: Reasons. This codebase has been developed over ~2 years. It
+works for me.</p>
+
+<h3 id="how-can-i-get-help">How can I get help?</h3>
+
+<p>You can <a href="mailto:opensource@housepub.org">email me</a>. However, as I said
+before this is a free time project, so I might not respond right away.
+If you’re an Opscode Hosted or Private Chef customer, please contact
+<a href="http://www.opscode.com/support/">Opscode support</a>. Finally, community
+based support is available through our
+<a href="http://community.opscode.com">community resources</a>.</p>
+
+<h1 id="further-resources">Further resources</h1>
+
+<p>If this is a topic of interest to you, I’d also like to point out a
+few similar projects that may be interesting. They have inspired me
+and things I have implemented in my own setup, so thank you Ben, Corey
+and Matthew and Brian at Pivotal!</p>
+
+<ul>
+  <li><a href="https://github.com/bleything/bootstrap">Ben Bleything’s OS X Bootstrap</a></li>
+  <li><a href="http://www.atmos.org/cinderella/">Corey Donohoe’s Cinderella</a></li>
+  <li><a href="https://github.com/pivotal/pivotal_workstation/">Pivotal Labs workstation setup</a></li>
+</ul>
+
+  </div><a class="u-url" href="/blog/2012/07/29/os-x-workstation-management-with-chef" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

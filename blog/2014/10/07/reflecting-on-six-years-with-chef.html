@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Reflecting on Six Years with Chef | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Reflecting on Six Years with Chef" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="It actually started a bit over seven years ago. I saw the writing on the wall at IBM; my job was soon to be outsourced. I found an open position with the SANS institute, accepted an offer there, and was due to start work in a couple of weeks. Around the same time, my friends Adam Jacob and Nathan Haneysmith had started HJK Solutions. They invited me to join them then, but it wasn’t the right time for me. Adam told me that at SANS I should at least use the automation tools and general infrastructure management model they planned to use. It turned out this was sage advice, for a number of reasons." />
+<meta property="og:description" content="It actually started a bit over seven years ago. I saw the writing on the wall at IBM; my job was soon to be outsourced. I found an open position with the SANS institute, accepted an offer there, and was due to start work in a couple of weeks. Around the same time, my friends Adam Jacob and Nathan Haneysmith had started HJK Solutions. They invited me to join them then, but it wasn’t the right time for me. Adam told me that at SANS I should at least use the automation tools and general infrastructure management model they planned to use. It turned out this was sage advice, for a number of reasons." />
+<link rel="canonical" href="/blog/2014/10/07/reflecting-on-six-years-with-chef" />
+<meta property="og:url" content="/blog/2014/10/07/reflecting-on-six-years-with-chef" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2014-10-07T17:36:43+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Reflecting on Six Years with Chef" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"It actually started a bit over seven years ago. I saw the writing on the wall at IBM; my job was soon to be outsourced. I found an open position with the SANS institute, accepted an offer there, and was due to start work in a couple of weeks. Around the same time, my friends Adam Jacob and Nathan Haneysmith had started HJK Solutions. They invited me to join them then, but it wasn’t the right time for me. Adam told me that at SANS I should at least use the automation tools and general infrastructure management model they planned to use. It turned out this was sage advice, for a number of reasons.","url":"/blog/2014/10/07/reflecting-on-six-years-with-chef","headline":"Reflecting on Six Years with Chef","@type":"BlogPosting","dateModified":"2014-10-07T17:36:43+00:00","datePublished":"2014-10-07T17:36:43+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2014/10/07/reflecting-on-six-years-with-chef"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Reflecting on Six Years with Chef</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2014-10-07T17:36:43+00:00" itemprop="datePublished">
+        Oct 7, 2014
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>It actually started a bit over seven years ago. I saw the writing on the wall at IBM; my job was soon to be outsourced. I found an open position with the SANS institute, accepted an offer there, and was due to start work in a couple of weeks. Around the same time, my friends Adam Jacob and Nathan Haneysmith had started HJK Solutions. They invited me to join them then, but it wasn’t the right time for me. Adam told me that at SANS I should at least use the <a href="https://puppetlabs.com">automation</a> <a href="http://capistranorb.com/">tools</a> and general <a href="http://infrastructures.org">infrastructure management model</a> they planned to use. It turned out this was sage advice, for a number of reasons.</p>
+
+<p>Around April, 2008, Adam told me he was working on “Chef,” a Ruby based configuration management and system integration framework. I was excited about its potential, and a few months later on July 2, 2008, I started with HJK Solutions as a Linux system administration consultant. I got familiar with HJK’s puppet-based stack, and ancillary Ruby tools like <a href="https://github.com/adamhjk/iclassify/wiki">iClassify</a> while working on their customer infrastructures over the coming months. After Opscode was founded and we released Chef 0.5, my primary focus was porting HJK’s puppet modules to <a href="https://github.com/opscode/cookbooks">chef cookbooks</a>.</p>
+
+<h2 id="opscodecookbooks">opscode/cookbooks</h2>
+
+<p>Adam had started the repository to give new users a place to begin using Chef with full working examples. I continued their development, and had the opportunity to solve hard problems of integration web application stacks with them. There were three important reasons for the repository to exist:</p>
+
+<ol>
+  <li>We have a body of knowledge as a tribe, and that can be codified.</li>
+  <li>Infrastructure as code is real, and it <em>can</em> be reusable.</li>
+  <li>The best way to learn Chef is to use Chef, and I had a goal to know Chef well enough to teach it to new users and companies.</li>
+</ol>
+
+<p>The development of general purpose cookbooks ends up being harder than any of us really imagined, I think. Every platform is different, so not only did I have to learn Chef, I had to learn how different platforms behave for common (and uncommon) pieces of software in web operations stacks. Over the years of managing these cookbooks, I learned a lot about how the community was developing workflows for using Chef, and how they differed from our opinions. I learned also learned how to manage and contribute to open source projects at a rather large scale, and how to have compassion and empathy for new or frustrated users.</p>
+
+<h2 id="training-and-services">Training and Services</h2>
+
+<p>In my time at CHEF, nee Opscode, I’ve had several job role changes. After several months of working on cookbooks, I added package and release management (<a href="http://lists.opscode.com/sympa/arc/chef/2014-11/msg00015.html">RIP, apt.opscode.com</a>) to my repertoire. I then switched to technical evangelism and training. With mentorship from <a href="http://twitter.com/botchagalupe">John Willis</a>, I drafted the initial version of <a href="https://www.getchef.com/blog/2010/07/13/open-source-chef-training-open-training/">Chef Fundamentals</a>, and delivered our inaugural training class in Seattle.</p>
+
+<p>I worked with the team John built to deliver training, speak at conferences, and work directly with customers to help make them successful with Chef. Eventually, John left the company to <a href="http://www.enstratius.com/news-events/press-releases/john-willis-announcement">build an awesome team</a> at <a href="http://www.enstratius.com/home">Enstratius</a>. I took on the role of Director of the team, but eventually I discovered that the <a href="http://fractio.nl/2014/09/19/not-a-promotion-a-career-change/">management track</a> was not the future of my career.</p>
+
+<h2 id="open-source-and-community">Open Source and Community</h2>
+
+<p>I came back to working on the cookbooks, which I had previously <a href="https://github.com/opscode-cookbooks">split into separate repositories</a>. I was also working more directly in the community, doing public training classes only (our consulting team did private/onsite classes), participating in our <a href="https://botbot.me/freenode/chef">IRC channels</a> and mailing <a href="http://lists.opscode.com">lists</a>. We had some organization churn, and I was moved around between four different managers, eventually reporting to <a href="https://twitter.com/nathenharvey">the inimitable Nathen Harvey</a>.</p>
+
+<p>During one of our 1-1 discussions, he said, “You know, Joshua. You write a lot of cookbooks to automate infrastructure. But you haven’t actually worked on any infrastructure in years. You should do something about that.”</p>
+
+<p>Around that time, there was a “senior system administrator” job posting on our very own careers site. I talked to our VP of Operations, and after a brief transition period, moved completely over to the ops team. I was able to bring with me the great practices from the community for developing cookbooks: testing with <a href="http://sethvargo.github.io/chefspec/">chefspec</a> and <a href="http://serverspec.org/">serverspec</a>, code consistency with <a href="">rubocop</a> and <a href="http://foodcritic.io">foodcritic</a>, and wrapping it all up with <a href="http://kitchen.ci">test kitchen</a>.</p>
+
+<h2 id="the-future">The Future</h2>
+
+<p>I’ve had the privilege to do work that I love, which is automating hard problems using Chef. I’ve also had the privilege of being part of the web operations, infrastructure as code, devops, and Chef communities over the past six years. I’ve been to all four Chef summits, and all three ChefConfs. A thing I’ve noticed over the years is that many conversations keep coming up at the summits and ChefConf. Fresh on my mind because the last summit was so recent is the topic of cookbook reusability. See, during the time that I managed opscode/cookbooks, I eventually saw the point people in the community were making about these being real software repositories that need to be managed like other complex software projects. We split up the repository into individual repositories per cookbook. We started adding test coverage, and conforming to consistency via syntax and style lint checking. That didn’t make cookboks more reusable, but it lowered the barrier of contribution, which in turn made them more reusable as more use cases could be covered. I got to be a part of that evolution, and it’s been awesome.</p>
+
+<p>While using Chef is one of my favorite technical things to do, I have come to the conclusion that based on my experience the best thing I can do is be a facilitator of stronger technical discipline with regard to using Chef. Primarily, this means improving how CHEF uses Chef to build Chef for our community and customers. We’re already really good at using Chef to build Chef (the product), and run Hosted Chef (the service). However, awesome tools from the community such as Test Kitchen, Berkshelf, ChefSpec, and Foodcritic did not exist when we started out. Between new, awesome tools, and growing our organization with new awesome people, we need to improve on getting our team members up to speed on the process and workflow that helps us deliver higher quality products.</p>
+
+<p>That is why I’m moving into a new role at CHEF. The sixth year marks as good a time as any to make a change, and I’m no stranger to that. I’m joining a team of quality advocacy led by Joseph Smith, as part of Jez Humble’s “Office of Continuous Improvement and Velocity.” In this new role, I will focus on improving our overall technical excellence so we can deliver better products to our community and customers, and so we can have awesome use cases and examples for managing Chef Server and its add-ons at scale.</p>
+
+<p>My first short term goal in this new role is a workstation automation cookbook that can be used and extended by our internal teams for ensuring everyone has a consistent set of tools to work on the product. This will be made an open source project that the community can use and extend as well. We’ll have more information about this as it becomes “a thing.”</p>
+
+<p>Next, I want to improve how we work on incidents. We’ve had sporadic blog posts about issues in Hosted Chef and Supermarket, and I’d like to see this get better.</p>
+
+<p>I’m also interested in managing Chef Server 12 clusters, including all the add-ons. Recently I worked on the <a href="https://github.com/opscode-cookbooks/chef-server-cluster">chef-server-cluster</a> cookbook, which will become the way CHEF deploys and manages Hosted Chef using the version 12 packages. Part of the earliest days of opscode/cookbooks, I maintained cookbooks to setup the open source Chef Server. Long time users may remember the “chef solo bootstrap” stack. Since then, CHEF has continued to iterate on that idea, and the “ctl” management commands largely use chef-solo under the hood. The new cookbook combines and wraps up manual processes and the “ctl” commands to enable us, our community, and our customers to build scalable Chef Server clusters using the omnibus packages. The cookbook uses chef-provisioning to do much of the heavy lifting.</p>
+
+<p>It should be easy for organizations to be successful with Chef. That includes CHEF! My goal in my new position is to fuel the love of Chef internally and externally, whip up awesome, and stir up more delight. I also look forward to seeing what our community and customers do with Chef in their organizations.</p>
+
+<h2 id="thank-you">Thank you</h2>
+
+<p>I’d like to thank the friends and mentors I’ve had along this journey. You’re all important, and we’ve shared some good times and code, and sometimes hugs. It’s been amazing to see so many people become successful with Chef.</p>
+
+<p>Above all, I’d like to thank Adam Jacob: for the opportunity to join in this ride, for inspiration to be a better system administrator and operations professional, for mentorship along the way, and for writing Chef in the first place. Cheers, my friend.</p>
+
+<p>Here’s to many more years of whipping up awesome!</p>
+
+  </div><a class="u-url" href="/blog/2014/10/07/reflecting-on-six-years-with-chef" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

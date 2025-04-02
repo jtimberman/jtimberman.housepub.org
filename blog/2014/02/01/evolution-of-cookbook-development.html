@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Evolution of Cookbook Development | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Evolution of Cookbook Development" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this post, I will explore some development patterns that I’ve seen (and done!) with Chef cookbooks, and then explain how we can evolve to a new level of cookbook development. The examples here come from Chef’s new chef-splunk cookbook, which is a refactored version of an old splunk42 cookbook. While there is a public splunk cookbook on the Chef community site, it shares some of the issues that I saw with our old one, which are partially subject matter of this post." />
+<meta property="og:description" content="In this post, I will explore some development patterns that I’ve seen (and done!) with Chef cookbooks, and then explain how we can evolve to a new level of cookbook development. The examples here come from Chef’s new chef-splunk cookbook, which is a refactored version of an old splunk42 cookbook. While there is a public splunk cookbook on the Chef community site, it shares some of the issues that I saw with our old one, which are partially subject matter of this post." />
+<link rel="canonical" href="/blog/2014/02/01/evolution-of-cookbook-development" />
+<meta property="og:url" content="/blog/2014/02/01/evolution-of-cookbook-development" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2014-02-01T19:48:49+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Evolution of Cookbook Development" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"In this post, I will explore some development patterns that I’ve seen (and done!) with Chef cookbooks, and then explain how we can evolve to a new level of cookbook development. The examples here come from Chef’s new chef-splunk cookbook, which is a refactored version of an old splunk42 cookbook. While there is a public splunk cookbook on the Chef community site, it shares some of the issues that I saw with our old one, which are partially subject matter of this post.","url":"/blog/2014/02/01/evolution-of-cookbook-development","headline":"Evolution of Cookbook Development","@type":"BlogPosting","dateModified":"2014-02-01T19:48:49+00:00","datePublished":"2014-02-01T19:48:49+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2014/02/01/evolution-of-cookbook-development"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Evolution of Cookbook Development</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2014-02-01T19:48:49+00:00" itemprop="datePublished">
+        Feb 1, 2014
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In this post, I will explore some development patterns that I’ve seen
+(and done!) with Chef cookbooks, and then explain how we can evolve to
+a new level of cookbook development. The examples here come from
+Chef’s new
+<a href="http://www.getchef.com/blog/2014/01/28/chefs-splunk-cookbook-2/">chef-splunk cookbook</a>,
+which is a refactored version of an old <code class="language-plaintext highlighter-rouge">splunk42</code> cookbook. While
+there is a public <code class="language-plaintext highlighter-rouge">splunk</code> cookbook on the Chef community site, it
+shares some of the issues that I saw with our old one, which are
+partially subject matter of this post.</p>
+
+<p>Anyway, on to the evolution!</p>
+
+<h1 id="sub-optimal-patterns">Sub-optimal patterns</h1>
+
+<p>These are the general patterns I’m going to address.</p>
+
+<ul>
+  <li>Composing URLs from multiple local variables or attributes</li>
+  <li>Large conditional logic branches like case statements in recipes</li>
+  <li>Not using definitions when it is best to do so</li>
+  <li>Knowledge of how node run lists are composed for search, or
+searching for “<code class="language-plaintext highlighter-rouge">role:some-server</code>”</li>
+  <li>Repeated resources across multiple orthogonal recipes</li>
+  <li>Plaintext secrets in attributes or data bag items</li>
+</ul>
+
+<p>Cookbook development is a wide and varied topic, so there are many
+other patterns to consider, but these are the ones most relevant to
+the refactored cookbook.</p>
+
+<h2 id="composing-urls">Composing URLs</h2>
+
+<p>It may seem like a good idea, to compose URL strings as attributes or
+local variables in a recipe based on other attributes and local
+variables. For example, in our <code class="language-plaintext highlighter-rouge">splunk42</code> cookbook we have this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_root</span> <span class="o">=</span> <span class="s2">"http://download.splunk.com/releases/"</span>
+<span class="n">splunk_version</span> <span class="o">=</span> <span class="s2">"4.2.1"</span>
+<span class="n">splunk_build</span> <span class="o">=</span> <span class="s2">"98164"</span>
+<span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">-linux-2.6-amd64.deb"</span>
+<span class="n">os</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s1">'os'</span><span class="p">].</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/\d*/</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>These get used in the following <code class="language-plaintext highlighter-rouge">remote_file</code> resource:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">remote_file</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="s2">"</span><span class="si">#{</span><span class="n">splunk_root</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">/universalforwarder/</span><span class="si">#{</span><span class="n">os</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span>
+  <span class="n">action</span> <span class="ss">:create_if_missing</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>We reused the filename variable, and composed the URL to the file to
+download. Then to upgrade, we can simply modify the <code class="language-plaintext highlighter-rouge">splunk_version</code>
+and <code class="language-plaintext highlighter-rouge">splunk_build</code>, as Splunk uses a consistent naming theme for their
+package URLs (thanks, Splunk!). The filename itself is built from a
+case statement (more on that in the next section). We could further
+make the version and build attributes, so users can update to newer
+versions by simply changing the attribute.</p>
+
+<p>So what is bad about this? Two things.</p>
+
+<ol>
+  <li>This is in the <code class="language-plaintext highlighter-rouge">splunk42::client</code> recipe, and repeated again in the
+<code class="language-plaintext highlighter-rouge">splunk42::server</code> recipe with only minor differences (the package
+name, splunk vs splunkforwarder).</li>
+  <li>Ruby has excellent libraries for manipulating URIs and paths as
+strings, and it is easier to break up a string than compose a new one.</li>
+</ol>
+
+<p>How can this be improved? First, we can set attributes for the full URL.
+The actual code for that is below, but suffice to say, it will look
+like this (note the version is different because the new cookbook installs
+a new Splunk version).</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">default</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'http://download.splunk.com/releases/6.0.1/universalforwarder/linux/splunkforwarder-6.0.1-189883-linux-2.6-amd64.deb'</span>
+</code></pre></div></div>
+
+<p>Second, we have
+<a href="https://github.com/opscode-cookbooks/chef-splunk/blob/master/libraries/helpers.rb">helper libraries</a>
+distributed with the cookbook that break up the URI so we can return
+just the package filename.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">splunk_file</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+  <span class="nb">require</span> <span class="s1">'pathname'</span>
+  <span class="nb">require</span> <span class="s1">'uri'</span>
+  <span class="no">Pathname</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="no">URI</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="n">uri</span><span class="p">).</span><span class="nf">path</span><span class="p">).</span><span class="nf">basename</span><span class="p">.</span><span class="nf">to_s</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The previous <code class="language-plaintext highlighter-rouge">remote_file</code> resource is rewritten like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">remote_file</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span>
+  <span class="n">action</span> <span class="ss">:create_if_missing</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>As a bonus, the helper methods are available in other places like
+other cookbooks and recipes, rather than the local scope of local
+variables.</p>
+
+<h2 id="conditional-logic-branches">Conditional Logic Branches</h2>
+
+<p>One of the wonderful things about Chef is that simple Ruby
+conditionals can be used in recipes to selectively set values for
+resource attributes, define resources that should be used, and other
+decisions. One of the horrible things about Chef is that simple Ruby
+conditionals can be used in recipes and often end up being far more
+complicated than originally intended, especially when handling
+multiple platforms and versions.</p>
+
+<p>In the earlier example, we had a <code class="language-plaintext highlighter-rouge">splunk_file</code> local variable set in a
+recipe. I mentioned it was built from a case statement, which looks
+like this, in full:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_file</span> <span class="o">=</span> <span class="k">case</span> <span class="n">node</span><span class="p">[</span><span class="s1">'platform_family'</span><span class="p">]</span>
+  <span class="k">when</span> <span class="s2">"rhel"</span>
+    <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">'kernel'</span><span class="p">][</span><span class="s1">'machine'</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"x86_64"</span>
+      <span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">-linux-2.6-x86_64.rpm"</span>
+    <span class="k">else</span>
+      <span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">.i386.rpm"</span>
+    <span class="k">end</span>
+  <span class="k">when</span> <span class="s2">"debian"</span>
+    <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">'kernel'</span><span class="p">][</span><span class="s1">'machine'</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"x86_64"</span>
+      <span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">-linux-2.6-amd64.deb"</span>
+    <span class="k">else</span>
+      <span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">-linux-2.6-intel.deb"</span>
+    <span class="k">end</span>
+  <span class="k">when</span> <span class="s2">"omnios"</span>
+    <span class="n">splunk_file</span> <span class="o">=</span> <span class="s2">"splunkforwarder-</span><span class="si">#{</span><span class="n">splunk_version</span><span class="si">}</span><span class="s2">-</span><span class="si">#{</span><span class="n">splunk_build</span><span class="si">}</span><span class="s2">-solaris-10-intel.pkg.Z"</span>
+  <span class="k">end</span>
+</code></pre></div></div>
+
+<p>Splunk itself supports many platforms, and not all of them are covered
+by this conditional, so it’s easy to imagine how this can get further
+out of control and make the recipe even harder to follow. Also
+consider that this is just the <code class="language-plaintext highlighter-rouge">client</code> portion for the
+<code class="language-plaintext highlighter-rouge">splunkforwarder</code> package, this same block is repeated in the <code class="language-plaintext highlighter-rouge">server</code>
+recipe, for the <code class="language-plaintext highlighter-rouge">splunk</code> package.</p>
+
+<p>So why is this bad? There are three reasons.</p>
+
+<ol>
+  <li>We have a large block of conditionals that sit in front of a user
+reading a recipe.</li>
+  <li>This logic isn’t reusable elsewhere, so it has to be duplicated in
+the other recipe.</li>
+  <li>This is only the logic for the package filename, but we care about
+the entire URL. I’ve also covered that composing URLs isn’t delightful.</li>
+</ol>
+
+<p>What is a better approach? Use the full URL as I mentioned before, and
+set it as an attribute. We will still have the gnarly case statement,
+but it will be tucked away in the <code class="language-plaintext highlighter-rouge">attributes/default.rb</code> file, and
+hidden from anyone reading the recipe (which is the thing they
+probably care most about reading).</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="n">node</span><span class="p">[</span><span class="s1">'platform_family'</span><span class="p">]</span>
+<span class="k">when</span> <span class="s1">'rhel'</span>
+  <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">'kernel'</span><span class="p">][</span><span class="s1">'machine'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'x86_64'</span>
+    <span class="n">default</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'http://download.splunk.com/releases/6.0.1/universalforwarder/linux/splunkforwarder-6.0.1-189883-linux-2.6-x86_64.rpm'</span>
+    <span class="n">default</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'http://download.splunk.com/releases/6.0.1/splunk/linux/splunk-6.0.1-189883-linux-2.6-x86_64.rpm'</span>
+  <span class="k">else</span>
+    <span class="n">default</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'http://download.splunk.com/releases/6.0.1/universalforwarder/linux/splunkforwarder-6.0.1-189883.i386.rpm'</span>
+    <span class="n">default</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'http://download.splunk.com/releases/6.0.1/splunk/linux/splunk-6.0.1-189883.i386.rpm'</span>
+  <span class="k">end</span>
+<span class="k">when</span> <span class="s1">'debian'</span>
+  <span class="c1"># ...</span>
+</code></pre></div></div>
+
+<p>The the complete case block can be viewed in the
+<a href="https://github.com/opscode-cookbooks/chef-splunk/blob/master/attributes/default.rb#L46-L66">repository</a>.
+Also, since this is an attribute, consumers of this cookbook can set
+the URL to whatever they want, including a local HTTP server.</p>
+
+<p>Another example of gnarly conditional logic looks like this, also from
+the <code class="language-plaintext highlighter-rouge">splunk42::client</code> recipe.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">case</span> <span class="n">node</span><span class="p">[</span><span class="s1">'platform_family'</span><span class="p">]</span>
+<span class="k">when</span> <span class="s2">"rhel"</span>
+  <span class="n">rpm_package</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+    <span class="n">source</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+<span class="k">when</span> <span class="s2">"debian"</span>
+  <span class="n">dpkg_package</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+    <span class="n">source</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+<span class="k">when</span> <span class="s2">"omnios"</span>
+  <span class="c1"># tl;dr, this was more lines than you want to read, and</span>
+  <span class="c1"># will be covered in the next section.</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Why is this bad? After all, we’re selecting the proper package
+resource to install from a local file on disk. The main issue is the
+conditional creates different resources that can’t be looked up in the
+resource collection. Our recipe doesn’t do this, but perhaps a wrapper
+cookbook would. The consumer wrapping the cookbook has to duplicate
+this logic in their own. Instead, it is better to select the provider
+for a single <code class="language-plaintext highlighter-rouge">package</code> resource.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">package</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">node</span><span class="p">[</span><span class="s1">'platform_family'</span><span class="p">]</span>
+  <span class="k">when</span> <span class="s1">'rhel'</span>
+    <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Package</span><span class="o">::</span><span class="no">Rpm</span>
+  <span class="k">when</span> <span class="s1">'debian'</span>
+    <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Package</span><span class="o">::</span><span class="no">Dpkg</span>
+  <span class="k">when</span> <span class="s1">'omnios'</span>
+    <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Package</span><span class="o">::</span><span class="no">Solaris</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h2 id="definitions-arent-bad">Definitions Aren’t Bad</h2>
+
+<p>Definitions are simply defined as recipe “macros.” They are not
+actually Chef Resources themselves, they just look like them, and
+contain their own Chef resources. This has some disadvantages, such as
+lack of metaparameters (like action), which has lead people to prefer
+using the “Lightweight Resource/Provider” (LWRP) DSL instead. In fact,
+some feel that definitions are bad, and that one should feel bad for
+using them. I argue that they have their place. One advantage is their
+relative simplicity.</p>
+
+<p>In our <code class="language-plaintext highlighter-rouge">splunk42</code> cookbook, the client and server recipes duplicate a
+lot of logic. As mentioned a lot of this is case statements for the
+Splunk package file. They also repeat the same logic for choosing the
+provider to install the package. I snipped the content from the <code class="language-plaintext highlighter-rouge">when
+"omnios"</code> block, but it looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cache_dir</span> <span class="o">=</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="p">[</span><span class="ss">:file_cache_path</span><span class="p">]</span>
+<span class="n">splunk_pkg</span> <span class="o">=</span> <span class="n">splunk_file</span><span class="p">.</span><span class="nf">gsub</span><span class="p">(</span><span class="sr">/\.Z/</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+
+<span class="n">execute</span> <span class="s2">"uncompress /opt/</span><span class="si">#{</span><span class="n">splunk_file</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+  <span class="n">not_if</span> <span class="p">{</span> <span class="o">::</span><span class="no">File</span><span class="p">.</span><span class="nf">exists?</span><span class="p">(</span><span class="n">splunk_cmd</span><span class="p">)</span> <span class="p">}</span>
+<span class="k">end</span>
+
+<span class="n">cookbook_file</span> <span class="s2">"</span><span class="si">#{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">/splunk-nocheck"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="s2">"splunk-nocheck"</span>
+<span class="k">end</span>
+
+<span class="n">file</span> <span class="s2">"</span><span class="si">#{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">/splunkforwarder-response"</span> <span class="k">do</span>
+  <span class="n">content</span> <span class="s2">"BASEDIR=/opt"</span>
+<span class="k">end</span>
+
+<span class="n">pkgopts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"-a </span><span class="si">#{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">/splunk-nocheck"</span><span class="p">,</span>
+           <span class="s2">"-r </span><span class="si">#{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">/splunkforwarder-response"</span><span class="p">]</span>
+
+<span class="n">package</span> <span class="s2">"splunkforwarder"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="s2">"/opt/</span><span class="si">#{</span><span class="n">splunk_pkg</span><span class="si">}</span><span class="s2">"</span>
+  <span class="n">options</span> <span class="n">pkgopts</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+  <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Package</span><span class="o">::</span><span class="no">Solaris</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>(Note: the logic for setting the provider is required since we’re not using the default over-the-network package providers, and installing from a local file on the system.)</p>
+
+<p>This isn’t <em>too</em> bad on its own, but needs to be repeated again in the
+server recipe if one wanted to run a Splunk server on OmniOS. The
+actual differences between the client and server package installation
+are the package name, <code class="language-plaintext highlighter-rouge">splunkforwarder</code> vs <code class="language-plaintext highlighter-rouge">splunk</code>. The earlier URL
+attribute example established a <code class="language-plaintext highlighter-rouge">forwarder</code> and <code class="language-plaintext highlighter-rouge">server</code> attribute.
+Using a definition, named <code class="language-plaintext highlighter-rouge">splunk_installer</code>, allows us to simplify
+the package installation used by the client and server recipes to look
+like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_installer</span> <span class="s1">'splunkforwarder'</span> <span class="k">do</span>
+  <span class="n">url</span> <span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'forwarder'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span>
+<span class="k">end</span>
+<span class="n">splunk_installer</span> <span class="s1">'splunk'</span> <span class="k">do</span>
+  <span class="n">url</span> <span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'server'</span><span class="p">][</span><span class="s1">'url'</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>How is this better than an LWRP? Simply that there was less ceremony
+in creating it. There is less cognitive load for a cookbook developer
+to worry about. Definitions by their very nature of containing
+resources are already idempotent and convergent with no additional
+effort. They also automatically support why-run mode, whereas in an
+LWRP that must be done by the developer. Finally, between resources in
+the definition and the rest of the Chef run, notifications may be
+sent.</p>
+
+<p>Contrast this to an LWRP, we need <code class="language-plaintext highlighter-rouge">resources</code> and <code class="language-plaintext highlighter-rouge">providers</code>
+directories, and the attributes of the resource need to be defined in
+the resource. Then the action methods need to be written in the
+provider. If we’re using inline resources (which we are) we need to
+declare those so any notifications work. Finally, we should ensure
+that why-run works properly.</p>
+
+<p>The actual definition is ~40 lines, and can be viewed in the cookbook
+<a href="https://github.com/opscode-cookbooks/chef-splunk/blob/master/definitions/splunk_installer.rb">repository</a>.
+I don’t have a comparable LWRP for this, but suffice to say that it
+would be longer and more complicated than the definition.</p>
+
+<h2 id="reasonability-about-search">Reasonability About Search</h2>
+
+<p>Search is one of the killer features of running a Chef Server.
+Dynamically configuring load balancer configuration, or finding the
+master database server is simple with a search. Because we often think
+about the functionality a service provides based on the role it
+serves, we end up doing searches that look like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_servers</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="ss">:node</span><span class="p">,</span> <span class="s2">"role:splunk-server"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Then we do something with <code class="language-plaintext highlighter-rouge">splunk_servers</code>, like send it to a
+template. What if someone doesn’t like the <a href="http://bikeshed.io">role name</a>?
+Then we have to do something like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_servers</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="ss">:node</span><span class="p">,</span> <span class="s2">"role:</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'server_role'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Then consumers of the cookbook can use whatever server role name they
+want, and just update the attribute for it. But, the internet has said
+that roles are bad, so we shouldn’t use them (even though they
+aren’t ;)). So instead, we need something like one of these queries:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_servers</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="ss">:node</span><span class="p">,</span> <span class="s2">"recipes:splunk42</span><span class="se">\:\:</span><span class="s2">server"</span><span class="p">)</span>
+<span class="c1">#or</span>
+<span class="n">splunk_servers</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="ss">:node</span><span class="p">,</span> <span class="s2">"</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="s1">'splunk'</span><span class="p">][</span><span class="s1">'server_search_query'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The problem with the first is similar to the problem with the first
+(<code class="language-plaintext highlighter-rouge">role:splunk-server</code>), we need knowledge about the run list in order
+to search properly. The problem with the second is that we now have to
+worry about constructing a query properly as a string that gets
+interpolated correctly.</p>
+
+<p>How can we improve this? I think it is more “Chef-like” to use an
+attribute on the server’s node object itself that informs queries the
+intention that the node is in fact a Splunk server. In our
+<code class="language-plaintext highlighter-rouge">chef-splunk</code> cookbook, we use <code class="language-plaintext highlighter-rouge">node['splunk']['is_server']</code>. The
+query looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_servers</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="ss">:node</span><span class="p">,</span> <span class="s2">"splunk_is_server:true"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>This reads clearly, and the <code class="language-plaintext highlighter-rouge">is_server</code> attribute can be set in one of
+15 places (for good or bad, but that’s a different post).</p>
+
+<h2 id="repeating-resources-composable-recipes">Repeating Resources, Composable Recipes</h2>
+
+<p>In the past, it was deemed okay to repeat resources across recipes
+when those recipes were not included on the same node. For example,
+client and server recipes that have similar resource requirements, but
+may pass in separate data. Another example is in the
+<a href="http://community.opscode.com/cookbooks/haproxy">haproxy</a>) cookbook I
+wrote where one recipe statically manages the configuration files, and
+the other uses a Chef search to populate the configuration.</p>
+
+<p>As I have mentioned above, a lot of code was duplicated between the
+client and server recipes for our <code class="language-plaintext highlighter-rouge">splunk42</code> cookbook: user and group,
+the case statements, package resources, execute statements (that
+haven’t been shared here), and the service resource. It is definitely
+important to ensure that all the resources needed to converge a recipe
+are defined, particularly when using notifications. That is why
+sometimes a recipe will have a <code class="language-plaintext highlighter-rouge">service</code> resource with no actions like
+this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span> <span class="s1">'mything'</span>
+</code></pre></div></div>
+
+<p>However Chef 11will generate a warning about
+<a href="http://tickets.opscode.com/browse/CHEF-3694">cloned resources</a> when
+they are repeated in the same Chef run.</p>
+
+<p>Why is this bad? Well, CHEF-3694 explains in more detail that
+particular issue, of cloned resources. The other reason is that it
+makes recipes harder to reuse when they have a larger scope than
+absolutely necessary. How can we make this better? A solution to this
+is to write small, composable recipes that contain resources that may
+be optional for certain use cases. For example, we can put the service
+resource in a recipe and include that:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">service</span> <span class="s1">'splunk'</span> <span class="k">do</span>
+  <span class="n">supports</span> <span class="ss">:status</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span> <span class="ss">:restart</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+  <span class="n">provider</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Provider</span><span class="o">::</span><span class="no">Service</span><span class="o">::</span><span class="no">Init</span>
+  <span class="n">action</span> <span class="ss">:start</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Then when we need to make sure we have the <code class="language-plaintext highlighter-rouge">service</code> resource
+available (e.g., for notifications):</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">template</span> <span class="s2">"</span><span class="si">#{</span><span class="n">splunk_dir</span><span class="si">}</span><span class="s2">/etc/system/local/outputs.conf"</span> <span class="k">do</span>
+  <span class="n">source</span> <span class="s1">'outputs.conf.erb'</span>
+  <span class="n">mode</span> <span class="mo">0644</span>
+  <span class="n">variables</span> <span class="ss">:splunk_servers</span> <span class="o">=&gt;</span> <span class="n">splunk_servers</span>
+  <span class="n">notifies</span> <span class="ss">:restart</span><span class="p">,</span> <span class="s1">'service[splunk]'</span>
+<span class="k">end</span>
+<span class="n">include_recipe</span> <span class="s1">'chef-splunk::service'</span>
+</code></pre></div></div>
+
+<p>Note that the service is included <em>after</em> the resource that notifies
+it. This is a feature of the notification system, where the notified
+resource can appear anywhere in the resource collection, and brings up
+another excellent practice, which is to declare service resources
+after other resources which affect their configuration. This prevents
+a race condition where, if a bad config is deployed, the service would
+attempt to start, fail, and cause the Chef run to exit before the
+config file could correct the problem.</p>
+
+<p>Making recipes composable in this way means that users can pick and
+choose the ones they want. Our <code class="language-plaintext highlighter-rouge">chef-splunk</code> cookbook has a
+prescriptive default recipe, but the client and server recipes mainly
+include the others they need. If someone doesn’t share our opinion on
+this for their use case, they can pick and choose the ones they want.
+Perhaps they have the <code class="language-plaintext highlighter-rouge">splunk</code> user and group created on systems
+through some other means. They won’t need the <code class="language-plaintext highlighter-rouge">chef-splunk::user</code>
+recipe, and can write their own wrapper to handle that. Overall this
+is good, though it does mean there are multiple places where a user
+must look to follow a recipe.</p>
+
+<h2 id="plaintext-secrets">Plaintext Secrets</h2>
+
+<p>Managing secrets is one of the hardest problems to solve in system
+administration and configuration management. In Chef, it is very easy
+to simply set attributes, or use data bag items for authentication
+credentials. Our old <code class="language-plaintext highlighter-rouge">splunk42</code> cookbook had this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_password</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="ss">:splunk</span><span class="p">][</span><span class="ss">:auth</span><span class="p">].</span><span class="nf">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Where <code class="language-plaintext highlighter-rouge">node[:splunk][:auth]</code> was set in a role with the
+<code class="language-plaintext highlighter-rouge">username:password</code>. This isn’t particularly <em>bad</em> since our Chef
+server runs on a private network and is secured with HTTPS and RSA
+keys, but a defense in depth security posture has more controls in
+place for secrets.</p>
+
+<p>How can this be improved? At Chef, we started using
+<a href="https://github.com/Nordstrom/chef-vault">Chef Vault</a> to manage
+secrets. I wrote a
+<a href="http://www.getchef.com/blog/2013/09/19/managing-secrets-with-chef-vault/">post about chef-vault</a>
+a few months ago, so I won’t dig too deep into the details here. The
+current <code class="language-plaintext highlighter-rouge">chef-splunk</code> cookbook loads the authentication information
+like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">splunk_auth_info</span> <span class="o">=</span> <span class="n">chef_vault_item</span><span class="p">(</span><span class="ss">:vault</span><span class="p">,</span> <span class="s2">"splunk_</span><span class="si">#{</span><span class="n">node</span><span class="p">.</span><span class="nf">chef_environment</span><span class="si">}</span><span class="s2">"</span><span class="p">)[</span><span class="s1">'auth'</span><span class="p">]</span>
+<span class="n">user</span><span class="p">,</span> <span class="n">pw</span> <span class="o">=</span> <span class="n">splunk_auth_info</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="s1">':'</span><span class="p">)</span>
+
+<span class="n">execute</span> <span class="s2">"</span><span class="si">#{</span><span class="n">splunk_cmd</span><span class="si">}</span><span class="s2"> edit user </span><span class="si">#{</span><span class="n">user</span><span class="si">}</span><span class="s2"> -password '</span><span class="si">#{</span><span class="n">pw</span><span class="si">}</span><span class="s2">' -role admin -auth admin:changeme"</span> <span class="k">do</span>
+  <span class="n">not_if</span> <span class="p">{</span> <span class="o">::</span><span class="no">File</span><span class="p">.</span><span class="nf">exists?</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="n">splunk_dir</span><span class="si">}</span><span class="s2">/etc/.setup_</span><span class="si">#{</span><span class="n">user</span><span class="si">}</span><span class="s2">_password"</span><span class="p">)</span> <span class="p">}</span>
+<span class="k">end</span>
+
+<span class="n">file</span> <span class="s2">"</span><span class="si">#{</span><span class="n">splunk_dir</span><span class="si">}</span><span class="s2">/etc/.setup_</span><span class="si">#{</span><span class="n">user</span><span class="si">}</span><span class="s2">_password"</span> <span class="k">do</span>
+  <span class="n">content</span> <span class="s1">'true\n'</span>
+  <span class="n">owner</span> <span class="s1">'root'</span>
+  <span class="n">group</span> <span class="s1">'root'</span>
+  <span class="n">mode</span> <span class="mo">00600</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>The first line loads the authentication information from the
+encrypted-with-chef-vault data bag item. Then we make a couple of
+convenient local variables, and change the password from Splunk’s
+built-in default. Then, we control convergence of the execute by
+writing a file that indicates that the password has been set.</p>
+
+<p>The advantage of this over attributes or data bag items is that the
+content is encrypted. The advantage over regular encrypted data bags
+is that we don’t need to distribute the secret key out to every
+system, we can update the list of nodes that have access with a knife
+command.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Neither Chef (the company), nor I are here to tell anyone how to
+write cookbooks. One of the benefits of Chef (the product) is its
+flexibility, allowing users to write blocks of Ruby code in recipes
+that quickly solve an immediate problem. That’s how we got to where we
+were with <code class="language-plaintext highlighter-rouge">splunk42</code>, and we certainly have other cookbooks that can
+be refactored similarly. When it comes to sharing cookbooks with the
+community, well-factored, easy to follow, understand, and use code is
+preferred.</p>
+
+<p>Many of the ideas here came from community members like Miah Johnson,
+Noah Kantrowitz, Jamie Winsor, and Mike Fiedler. I owe them thanks for
+challenging me over the years on a lot of the older patterns that I
+held onto. Together we can build better automation through cookbooks,
+and a strong collaborative community. I hope this information is
+helpful to those goals.</p>
+
+  </div><a class="u-url" href="/blog/2014/02/01/evolution-of-cookbook-development" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

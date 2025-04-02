@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef 12: Fix Untrusted Self Sign Certs | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef 12: Fix Untrusted Self Sign Certs" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Scenario: You’ve started up a brand new Chef Server using version 12, and you have installed Chef 12 on your local system. You log into the Management Console to create a user and organization (or do this with the command-line chef-server-ctl commands), and you’re ready to rock with this knife.rb:" />
+<meta property="og:description" content="Scenario: You’ve started up a brand new Chef Server using version 12, and you have installed Chef 12 on your local system. You log into the Management Console to create a user and organization (or do this with the command-line chef-server-ctl commands), and you’re ready to rock with this knife.rb:" />
+<link rel="canonical" href="/blog/2014/12/11/chef-12-fix-untrusted-self-sign-certs" />
+<meta property="og:url" content="/blog/2014/12/11/chef-12-fix-untrusted-self-sign-certs" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2014-12-11T20:42:41+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef 12: Fix Untrusted Self Sign Certs" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Scenario: You’ve started up a brand new Chef Server using version 12, and you have installed Chef 12 on your local system. You log into the Management Console to create a user and organization (or do this with the command-line chef-server-ctl commands), and you’re ready to rock with this knife.rb:","url":"/blog/2014/12/11/chef-12-fix-untrusted-self-sign-certs","headline":"Chef 12: Fix Untrusted Self Sign Certs","@type":"BlogPosting","dateModified":"2014-12-11T20:42:41+00:00","datePublished":"2014-12-11T20:42:41+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2014/12/11/chef-12-fix-untrusted-self-sign-certs"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef 12: Fix Untrusted Self Sign Certs</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2014-12-11T20:42:41+00:00" itemprop="datePublished">
+        Dec 11, 2014
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Scenario: You’ve started up a brand new Chef Server using version 12, and you have installed Chef 12 on your local system. You log into the Management Console to create a user and organization (or do this with the command-line <code class="language-plaintext highlighter-rouge">chef-server-ctl</code> commands), and you’re ready to rock with this knife.rb:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">node_name</span>                <span class="s1">'jtimberman'</span>
+<span class="n">client_key</span>               <span class="s1">'jtimberman.pem'</span>
+<span class="n">validation_client_name</span>   <span class="s1">'tester-validator'</span>
+<span class="n">validation_key</span>           <span class="s1">'tester-validator.pem'</span>
+<span class="n">chef_server_url</span>          <span class="s1">'https://chef-server.example.com/organizations/tester'</span>
+</code></pre></div></div>
+
+<p>However, when you try to check things out with knife:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife client list
+ERROR: SSL Validation failure connecting to host: chef-server.example.com - SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+ERROR: OpenSSL::SSL::SSLError: SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+</code></pre></div></div>
+
+<p>This is because Chef client 12 has SSL verification enabled by default for all requests. Since the certificate generated by the Chef Server 12 installation is self-signed, there isn’t a signing CA that can be verified, and this fails. Never fear intrepid user, for you can get the SSL certificate from the server and store it as a “trusted” certificate. To find out how, use <code class="language-plaintext highlighter-rouge">knife ssl check</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Connecting to host chef-server.example.com:443
+ERROR: The SSL certificate of chef-server.example.com could not be verified
+Certificate issuer data: /C=US/ST=WA/L=Seattle/O=YouCorp/OU=Operations/CN=chef-server.example.com/emailAddress=you@example.com
+
+Configuration Info:
+
+OpenSSL Configuration:
+* Version: OpenSSL 1.0.1j 15 Oct 2014
+* Certificate file: /opt/chefdk/embedded/ssl/cert.pem
+* Certificate directory: /opt/chefdk/embedded/ssl/certs
+Chef SSL Configuration:
+* ssl_ca_path: nil
+* ssl_ca_file: nil
+* trusted_certs_dir: "/Users/jtimberman/Downloads/chef-repo/.chef/trusted_certs"
+
+TO FIX THIS ERROR:
+
+If the server you are connecting to uses a self-signed certificate, you must
+configure chef to trust that server's certificate.
+
+By default, the certificate is stored in the following location on the host
+where your chef-server runs:
+
+  /var/opt/chef-server/nginx/ca/SERVER_HOSTNAME.crt
+
+Copy that file to your trusted_certs_dir (currently: /Users/jtimberman/Downloads/chef-repo/.chef/trusted_certs)
+using SSH/SCP or some other secure method, then re-run this command to confirm
+that the server's certificate is now trusted.
+</code></pre></div></div>
+
+<p>(note, <a href="https://github.com/opscode/chef/issues/2604">this chef-server location is incorrect</a>, it’s <code class="language-plaintext highlighter-rouge">/var/opt/opscode</code>)</p>
+
+<p>There is a <code class="language-plaintext highlighter-rouge">fetch</code> plugin for <code class="language-plaintext highlighter-rouge">knife</code> too. Let’s download the certificate to the automatically preconfigured trusted certificate location mentioned in the output above.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife ssl fetch
+WARNING: Certificates from chef-server.example.com will be fetched and placed in your trusted_cert
+directory (/Users/jtimberman/Downloads/chef-repo/.chef/trusted_certs).
+
+Knife has no means to verify these are the correct certificates. You should
+verify the authenticity of these certificates after downloading.
+
+Adding certificate for chef-server.example.com in /Users/jtimberman/Downloads/chef-repo/.chef/trusted_certs/chef-server.example.com.crt
+</code></pre></div></div>
+
+<p>The certificate should be verified that what was downloaded is in fact the same as the certificate on the Chef Server. For example, I compared SHA256 checksums:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% ssh ubuntu@chef-server.example.com sudo sha256sum /var/opt/opscode/nginx/ca/chef-server.example.com.crt
+043728b55144861ed43a426c67addca357a5889158886aee50685cf1422b5ebf  /var/opt/opscode/nginx/ca/chef-server.example.com.crt
+% gsha256sum .chef/trusted_certs/chef-server.example.com.crt
+043728b55144861ed43a426c67addca357a5889158886aee50685cf1422b5ebf  .chef/trusted_certs/chef-server.example.com.crt
+</code></pre></div></div>
+
+<p>Now check knife client list again.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife client list
+tester-validator
+</code></pre></div></div>
+
+<p>Victory!</p>
+
+<p>Now, we need to get the ceritficate out to every node in the infrastructure in its <code class="language-plaintext highlighter-rouge">trusted_certs_dir</code> - by default this is <code class="language-plaintext highlighter-rouge">/etc/chef/trusted_certs</code>. The most simple way to do this is to use <code class="language-plaintext highlighter-rouge">knife ssh</code> to run knife on the target nodes.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife ssh 'name:*' 'sudo knife ssl fetch -c /etc/chef/client.rb'
+node-output.example.com WARNING: Certificates from chef-server-example.com will be fetched and placed in your trusted_cert
+node-output.example.com directory (/etc/chef/trusted_certs).
+node-output.example.com
+node-output.example.com Knife has no means to verify these are the correct certificates. You should
+node-output.example.com verify the authenticity of these certificates after downloading.
+node-output.example.com
+node-output.example.com Adding certificate for chef-server.example.com in /etc/chef/trusted_certs/chef-server.example.com.crt
+</code></pre></div></div>
+
+<p>The output will be interleaved for all the nodes returned by <code class="language-plaintext highlighter-rouge">knife ssh</code>. Of course, we should verify the SHA256 checksums like before, which can be done again with <code class="language-plaintext highlighter-rouge">knife ssh</code>.</p>
+
+  </div><a class="u-url" href="/blog/2014/12/11/chef-12-fix-untrusted-self-sign-certs" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

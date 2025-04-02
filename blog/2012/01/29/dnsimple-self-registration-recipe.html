@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>DNSimple Self Registration Recipe | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="DNSimple Self Registration Recipe" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Earlier this month, I completed a switch to DNSimple for my domain’s DNS provider. I am still happy with the switch, and finally, just now, got around to writing a recipe to have my systems automatically register themselves in DNS." />
+<meta property="og:description" content="Earlier this month, I completed a switch to DNSimple for my domain’s DNS provider. I am still happy with the switch, and finally, just now, got around to writing a recipe to have my systems automatically register themselves in DNS." />
+<link rel="canonical" href="/blog/2012/01/29/dnsimple-self-registration-recipe" />
+<meta property="og:url" content="/blog/2012/01/29/dnsimple-self-registration-recipe" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-01-29T19:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="DNSimple Self Registration Recipe" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Earlier this month, I completed a switch to DNSimple for my domain’s DNS provider. I am still happy with the switch, and finally, just now, got around to writing a recipe to have my systems automatically register themselves in DNS.","url":"/blog/2012/01/29/dnsimple-self-registration-recipe","headline":"DNSimple Self Registration Recipe","@type":"BlogPosting","dateModified":"2012-01-29T19:00:00+00:00","datePublished":"2012-01-29T19:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/01/29/dnsimple-self-registration-recipe"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">DNSimple Self Registration Recipe</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-01-29T19:00:00+00:00" itemprop="datePublished">
+        Jan 29, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Earlier this month, I completed a
+<a href="/blog/2012/01/02/switching-to-dnsimple/">switch to DNSimple</a> for my
+domain’s DNS provider. I am still happy with the switch, and finally,
+just now, got around to writing a recipe to have my systems
+automatically register themselves in DNS.</p>
+
+<p>In the post, I described automatically adding the DNS entries with the
+<a href="http://community.opscode.com/cookbooks/dnsimple">dnsimple cookbook</a>.
+I did this as a proof of concept, but I didn’t add it to all my nodes,
+instead using my existing data bag-driven solution.</p>
+
+<p>That said, this post serves as a brief document on how you can mimic
+this behavior with your own environment.</p>
+
+<h1 id="encrypted-data-bag">Encrypted Data Bag</h1>
+
+<p>I put my DNSimple credentials in an
+<a href="http://wiki.opscode.com/display/chef/Encrypted+Data+Bags">encrypted data bag</a>.
+Since I have to decrypt and read the entire thing anyway, I also store
+the relevant data there. I keep my encrypted data bags in a bag called
+secrets. The structure looks like this:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
+  <span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">dnsimple</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">api_token</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">DNSimple API Token Here</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">domain</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">your-domain.example.com</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">username</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">DNSimple username</span><span class="dl">"</span><span class="p">,</span>
+  <span class="dl">"</span><span class="s2">password</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">DNSimple password</span><span class="dl">"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Replace the values with your values. Encrypting the data is optional,
+but requires that you create a secret key or key file. Read my
+<a href="/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/">previous post on the topic</a>
+for more information.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% knife data bag from file secrets dnsimple.json
+% knife data bag from file secrets dnsimple.json --secret-file /etc/chef/encrypted_data_bag_secret
+</code></pre></div></div>
+
+<p>The first command just uploads the data bag item, the second encrypts
+it. Note that I manage my workstation with Chef, so I will use the
+same secret file as the Chef default. The secret file needs to be
+copied to each system that will need it.</p>
+
+<h1 id="recipe">Recipe</h1>
+
+<p>The recipe looks like this:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dnsimple</span> <span class="o">=</span> <span class="n">encrypted_data_bag_item</span><span class="p">(</span><span class="s2">"secrets"</span><span class="p">,</span> <span class="s2">"dnsimple"</span><span class="p">)</span>
+<span class="n">dnsimple_record</span> <span class="s2">"</span><span class="si">#{</span><span class="n">node</span><span class="p">[</span><span class="s1">'hostname'</span><span class="p">]</span><span class="si">}</span><span class="s2">.int.</span><span class="si">#{</span><span class="n">dnsimple</span><span class="p">[</span><span class="s1">'domain'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">do</span>
+  <span class="n">content</span> <span class="n">node</span><span class="p">[</span><span class="s1">'ipaddress'</span><span class="p">]</span>
+  <span class="n">type</span> <span class="s2">"A"</span>
+  <span class="n">action</span> <span class="ss">:create</span>
+  <span class="n">username</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'username'</span><span class="p">]</span>
+  <span class="n">password</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'password'</span><span class="p">]</span>
+  <span class="n">domain</span> <span class="n">dnsimple</span><span class="p">[</span><span class="s1">'domain'</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>As
+<a href="/blog/2011/08/06/encrypted-data-bag-for-postfix-sasl-authentication/">mentioned in the previous blog post</a>,
+the <code class="language-plaintext highlighter-rouge">encrypted_data_bag_item</code> method is in a library. Either add that
+library to your cookbook, or use the class directly.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dnsimple</span> <span class="o">=</span> <span class="no">Chef</span><span class="o">::</span><span class="no">EncryptedDataBagItem</span><span class="p">.</span><span class="nf">load</span><span class="p">(</span><span class="s2">"secrets"</span><span class="p">,</span> <span class="s2">"dnsimple"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>If you’re not using an encrypted data bag, then the item can be
+accessed with the normal method:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dnsimple</span> <span class="o">=</span> <span class="n">data_bag_item</span><span class="p">(</span><span class="s2">"bagname"</span><span class="p">,</span> <span class="s2">"dnsimple"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The real work happens in the <code class="language-plaintext highlighter-rouge">dnsimple_record</code> LWRP, which will add an
+“A” record for the system running the recipe. Note that the actual
+entry is going to use the <code class="language-plaintext highlighter-rouge">int</code> subdomain, and it will use the domain
+stored in the data bag item. It also will use the default IP address
+of the node, which means the IP for the interface with the default
+route.</p>
+
+  </div><a class="u-url" href="/blog/2012/01/29/dnsimple-self-registration-recipe" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

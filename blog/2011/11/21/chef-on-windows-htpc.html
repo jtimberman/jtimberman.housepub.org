@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef on Windows HTPC | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef on Windows HTPC" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Over the past 20 years, I always had a Windows (or DOS!) PC as the main system I use at home. The primary purpose was for gaming, although building my own systems is also a hobby. In 2007, I wanted to build a new system to use as a home theater PC. Originally, I built it with Windows Vista - Windows Media Center was Vista’s killer app! I painstakingly installed software, tweaked system settings and tuned the registry. Then Windows 7 came along with further improvements. After almost 20 years of reinstalling from scratch for new versions of Windows, I treated this upgrade as no different." />
+<meta property="og:description" content="Over the past 20 years, I always had a Windows (or DOS!) PC as the main system I use at home. The primary purpose was for gaming, although building my own systems is also a hobby. In 2007, I wanted to build a new system to use as a home theater PC. Originally, I built it with Windows Vista - Windows Media Center was Vista’s killer app! I painstakingly installed software, tweaked system settings and tuned the registry. Then Windows 7 came along with further improvements. After almost 20 years of reinstalling from scratch for new versions of Windows, I treated this upgrade as no different." />
+<link rel="canonical" href="/blog/2011/11/21/chef-on-windows-htpc" />
+<meta property="og:url" content="/blog/2011/11/21/chef-on-windows-htpc" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2011-11-21T07:15:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef on Windows HTPC" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"Over the past 20 years, I always had a Windows (or DOS!) PC as the main system I use at home. The primary purpose was for gaming, although building my own systems is also a hobby. In 2007, I wanted to build a new system to use as a home theater PC. Originally, I built it with Windows Vista - Windows Media Center was Vista’s killer app! I painstakingly installed software, tweaked system settings and tuned the registry. Then Windows 7 came along with further improvements. After almost 20 years of reinstalling from scratch for new versions of Windows, I treated this upgrade as no different.","url":"/blog/2011/11/21/chef-on-windows-htpc","headline":"Chef on Windows HTPC","@type":"BlogPosting","dateModified":"2011-11-21T07:15:00+00:00","datePublished":"2011-11-21T07:15:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2011/11/21/chef-on-windows-htpc"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef on Windows HTPC</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2011-11-21T07:15:00+00:00" itemprop="datePublished">
+        Nov 21, 2011
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Over the past 20 years, I always had a Windows (or DOS!) PC as the
+main system I use at home. The primary purpose was for gaming,
+although building my own systems is also a hobby. In 2007, I wanted to
+build a new system to use as a home theater PC. Originally, I built it
+with Windows Vista - Windows Media Center <em>was</em> Vista’s killer app! I
+painstakingly installed software, tweaked system settings and tuned
+the registry. Then Windows 7 came along with further
+improvements. After almost 20 years of reinstalling from scratch for
+new versions of Windows, I treated this upgrade as no
+different.</p>
+
+<p>Unfortunately, I didn’t capture all the system tweaks and settings. I
+didn’t get all the software reinstalled. I did what I remembered, and
+W7 did have some improvements that made extra software and tweaks
+unnecessary. The thing I was lacking in the rebuild, and up until
+recently, was configuration management for Windows.</p>
+
+<h2 id="enter-chef">Enter Chef</h2>
+
+<p>Recently, my employer Opscode
+<a href="http://www.opscode.com/press-releases/opscode-delivers-cloud-infrastructure-automation-to-windows-environments/">announced broader Windows support</a>
+for Chef. The awesome Chef community, and our development team have
+added some key features to Chef in the form of core libraries and
+cookbooks. While I did get Chef running on my HTPC a few months ago, I
+had only used it to test out the
+<a href="http://community.opscode.com/cookbooks/powershell">powershell cookbook</a>,
+and also wrote a
+<a href="http://community.opscode.com/cookbooks/silverlight">silverlight cookbook</a>
+as a proof of concept. In the mean time, the
+<a href="http://community.opscode.com/cookbooks/windows">windows cookbook</a>
+cookbook received some serious leveling up thanks to
+<a href="http://twitter.com/schisamo">Seth Chisamore</a>.</p>
+
+<h2 id="windows-cookbook">Windows Cookbook</h2>
+
+<p>The Windows cookbook has a number of excellent “primitives” in the
+form of libraries and resources. You can read all about that on
+<a href="http://wiki.opscode.com/display/chef/Opscode+LWRP+Resources#OpscodeLWRPResources-windows">The Chef Wiki</a>. For
+now, I’ll talk about how I captured some of the configuration so I
+don’t have to remember next time (Windows 8, coming soon…). Of
+interest here are the <code class="language-plaintext highlighter-rouge">windows_registry</code> and <code class="language-plaintext highlighter-rouge">windows_auto_run</code> resources.</p>
+
+<h2 id="my-htpcs-cookbooks">My HTPC’s cookbooks</h2>
+
+<p>I wrote two cookbooks this weekend. First, is a general “Windows Media
+Center” cookbook called, aptly, “<code class="language-plaintext highlighter-rouge">wmc</code>”. This will capture the
+specific registry and other configuration related to Windows Media
+Center itself. The idea with this one is it manages only Windows Media
+Center. It’s not ready for release, but I’ll post some snippets
+of code here as I go.</p>
+
+<p>The second cookbook I created is specifically for the Home Theater PC
+itself, named <code class="language-plaintext highlighter-rouge">htpc</code>. This is going to contain all my preferences and
+biases of how I want my HTPC to look like in order to provide
+entertainment in my house.</p>
+
+<h2 id="windows-media-center-wmc">Windows Media Center (wmc)</h2>
+
+<p>First and foremost, I want to make sure that Windows Media Center is
+running at boot time, and the <code class="language-plaintext highlighter-rouge">windows_auto_run</code> resource fits the
+bill. This resource modifies the registry to update the key
+<code class="language-plaintext highlighter-rouge">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code>, using the
+<code class="language-plaintext highlighter-rouge">windows_registry</code> resource. It does operate at the <em>machine</em> level,
+not just the current user, but I only have one user on my HTPC, so
+it’s okay. Here’s the resource:</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">windows_auto_run</span> <span class="s2">"Windows Media Center"</span> <span class="k">do</span>
+  <span class="n">program</span> <span class="s2">"RunDLL32.exe C:/Windows/ehome/ehuihlp.exe,BootMediaCenter"</span>
+  <span class="n">not_if</span> <span class="p">{</span> <span class="no">Registry</span><span class="p">.</span><span class="nf">value_exists?</span><span class="p">(</span><span class="no">AUTO_RUN_KEY</span><span class="p">,</span> <span class="s1">'Windows Media Center'</span><span class="p">)</span> <span class="p">}</span>
+  <span class="n">action</span> <span class="ss">:create</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Next, I want to tweak a few other registry settings. Some of these I
+discovered through an
+<a href="http://blogs.msdn.com/b/astebner/archive/2006/04/29/586961.aspx">MSDN blog post</a>,
+others are from setting up WMC itself and observing the “HKCU”
+registry. Not the most sophisticated way, but I don’t see a great
+“diff” tool for the registry. Because the name of the HKCU and HKLM keys for WMC are
+long, I set them to a couple local variables, via <code class="language-plaintext highlighter-rouge">cookbooks/attributes/default.rb</code>.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">default</span><span class="p">[</span><span class="s1">'wmc'</span><span class="p">][</span><span class="s1">'reg_hkcu'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'HKCU\Software\Microsoft\Windows\CurrentVersion\Media Center'</span>
+<span class="n">default</span><span class="p">[</span><span class="s1">'wmc'</span><span class="p">][</span><span class="s1">'reg_hklm'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Media Center'</span>
+</code></pre></div></div>
+
+<p>Then in the recipe, I simply assign local variables.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">hkcu</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s1">'wmc'</span><span class="p">][</span><span class="s1">'reg_hkcu'</span><span class="p">]</span>
+<span class="n">hklm</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s1">'wmc'</span><span class="p">][</span><span class="s1">'reg_hklm'</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Now, for the registry changes. I use a 30 second skip forward and back
+with my remote during recorded TV shows, so I can avoid commercials.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">windows_registry</span> <span class="s2">"</span><span class="si">#{</span><span class="n">hkcu</span><span class="si">}</span><span class="se">\\</span><span class="s2">Settings</span><span class="se">\\</span><span class="s2">VideoSettings"</span> <span class="k">do</span>
+  <span class="n">values</span><span class="p">(</span>
+    <span class="s1">'SkipAheadInterval'</span> <span class="o">=&gt;</span> <span class="mh">0x7148</span><span class="p">,</span>
+    <span class="s1">'InstantReplayInterval'</span> <span class="o">=&gt;</span> <span class="mh">0x7148</span>
+  <span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>I also optimize the display for LCD/Plasma (I have a RP DLP, but I
+digress).</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">windows_registry</span> <span class="n">hkcu</span> <span class="k">do</span>
+  <span class="n">values</span> <span class="s1">'TVSkin'</span> <span class="o">=&gt;</span> <span class="mi">0</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>For now, that’s all the <code class="language-plaintext highlighter-rouge">wmc</code> cookbook has going for it. I do have
+plans to enable additional features of WMC, install useful plugins,
+and improve playback quality and performance. Mainly, I need to find
+my old notes :-).</p>
+
+<h2 id="home-theater-pc-htpc">Home Theater PC (htpc)</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">htpc</code> cookbook will contain additional tweaks and settings for
+how I want my HTPC configured. I don’t know if I’ll release it
+publicly, as it is pretty specific to me, but it might be useful as
+examples for others, so stay tuned to my
+<a href="https://github.com/jtimberman">GitHub account</a> for updates.</p>
+
+<p>First up are some local performance tweaks. These are done to
+Explorer(.exe), and I don’t remember the source.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">windows_registry</span> <span class="s2">"HKCU</span><span class="se">\\</span><span class="s2">Software</span><span class="se">\\</span><span class="s2">Microsoft</span><span class="se">\\</span><span class="s2">Windows</span><span class="se">\\</span><span class="s2">CurrentVersion</span><span class="se">\\</span><span class="s2">Policies</span><span class="se">\\</span><span class="s2">Explorer"</span> <span class="k">do</span>
+  <span class="n">values</span><span class="p">(</span>
+    <span class="s1">'NoLowDiskSpaceChecks'</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">'NoResolveSearch'</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">'NoResolveTrack'</span> <span class="o">=&gt;</span> <span class="mi">1</span>
+  <span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>Second, since this system is where all my music files live, I have
+iTunes installed for
+<a href="http://support.apple.com/kb/HT3819">Home Sharing</a>. It doesn’t do much
+good if iTunes isn’t running, however, so I use <code class="language-plaintext highlighter-rouge">windows_auto_run</code> to
+start it up.</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">windows_auto_run</span> <span class="s2">"iTunes"</span> <span class="k">do</span>
+  <span class="n">program</span> <span class="s2">"C:/Program</span><span class="se">\ </span><span class="s2">Files/iTunes/iTunes.exe"</span>
+  <span class="n">not_if</span> <span class="p">{</span> <span class="no">Registry</span><span class="p">.</span><span class="nf">value_exists?</span><span class="p">(</span><span class="no">AUTO_RUN_KEY</span><span class="p">,</span> <span class="s2">"iTunes"</span><span class="p">)</span> <span class="p">}</span>
+  <span class="n">action</span> <span class="ss">:create</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>It’s pretty simple so far, but I have some plans in store for my HTPC cookbook.</p>
+
+<h2 id="htpc-cookbook-plans">HTPC Cookbook Plans</h2>
+
+<p>I do plan to add some new features to the <code class="language-plaintext highlighter-rouge">htpc</code> cookbook. First, I
+want to make sure all the software I need is installed. While the
+system mainly sits in WMC (with iTunes in the background), I do have
+some additional software and utilities that I like to have for
+managing my media library.</p>
+
+<ul>
+  <li>iTunes - I already have the software installed, but it would be nice
+to not have to do that during system setup (Windows 8, I say…).</li>
+  <li>Google Chrome - there’s no abc.com, nbc.com, etc plugins for WMC
+(yet?), so I need a browser to go to the respective web sites to
+catch up on older episodes.</li>
+  <li>CDBurnerXP - decent CD/DVD burning software, rarely used but useful
+for backups.</li>
+  <li>Logitech Harmony Remote Software - I have a
+<a href="http://www.logitech.com/en-us/remotes/universal-remotes/devices/6063">Harmony 700 universal remote</a>
+(and it’s awesome!). This one might be tricky, but really I just
+want to make sure the software is installed. Configuration profiles
+are stored in an online support account with Logitech as far as I’m
+aware.</li>
+  <li>Netflix plugin for WMC - This will probably go into the <code class="language-plaintext highlighter-rouge">wmc</code>
+cookbook, though.</li>
+  <li>Additional performance tweaks - There are a whole slew of tweaks
+that I <em>know</em> I made, I just don’t remember them all. These will be
+added with <code class="language-plaintext highlighter-rouge">windows_registry</code> resources.</li>
+  <li>Manage services - Everyone who has a gaming PC knows about
+<a href="http://www.blackviper.com/">Black Viper’s Windows Service Guide(s)</a>.</li>
+  <li>Windows Features - With the <code class="language-plaintext highlighter-rouge">windows_feature</code> resource, Chef can
+manage core features included in Windows installations.</li>
+  <li>Logging, monitoring - What kind of system administrator would I be
+if I didn’t also monitor my system for performance? :-)</li>
+</ul>
+
+<p>Some of the things I want to manage on my HTPC are covered by other
+cookbooks I have, or exist on the
+<a href="http://community.opscode.com">Chef Community Site</a>.</p>
+
+<ul>
+  <li>Steam - This system is still capable of running some games, like
+StarCraft II, TeamFortress 2 and Left 4 Dead (1 &amp; 2). I have a Steam
+cookbook that works on OS X, it just isn’t released (yet).</li>
+  <li>Teamspeak 3 - I already have a
+<a href="http://community.opscode.com/cookbooks/teamspeak3">teamspeak3 cookbook</a>,
+I’ll just need to add installation of the client for Windows there.</li>
+  <li><a href="http://gnu.org/s/emacs">A text editor</a> - Since I have games, and
+games have configuration files, it makes sense to … wait, I should
+put those in Chef too! Or at least, in a Version Control System and
+check out the repository…</li>
+  <li><a href="http://git-scm.org">Git</a> - For the above. This will likely be a
+contribution to Opscode’s
+<a href="http://community.opscode.com/cookbooks/git">git cookbook</a>. Though
+I’ll still install a <a href="http://notepad-plus-plus.org">text editor</a> of
+<a href="http://www.gnome.org/projects/gedit">some kind</a>.</li>
+</ul>
+
+<p>These changes, updates and releases will be announced on this blog,
+ mainly through my <a href="https://twitter.com/jtimberman">twitter</a> and
+ <a href="https://plus.google.com/100567271038100401523/">Google+</a>
+ accounts. Stay tuned!</p>
+
+  </div><a class="u-url" href="/blog/2011/11/21/chef-on-windows-htpc" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

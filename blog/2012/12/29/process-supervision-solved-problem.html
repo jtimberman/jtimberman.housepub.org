@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Process Supervision: Solved Problem | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Process Supervision: Solved Problem" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="TL;DR: Use runit; skip to “This is a Solved Problem” and “Additional Resources” sections at the end of this post." />
+<meta property="og:description" content="TL;DR: Use runit; skip to “This is a Solved Problem” and “Additional Resources” sections at the end of this post." />
+<link rel="canonical" href="/blog/2012/12/29/process-supervision-solved-problem" />
+<meta property="og:url" content="/blog/2012/12/29/process-supervision-solved-problem" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-12-29T21:41:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Process Supervision: Solved Problem" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"TL;DR: Use runit; skip to “This is a Solved Problem” and “Additional Resources” sections at the end of this post.","url":"/blog/2012/12/29/process-supervision-solved-problem","headline":"Process Supervision: Solved Problem","@type":"BlogPosting","dateModified":"2012-12-29T21:41:00+00:00","datePublished":"2012-12-29T21:41:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/12/29/process-supervision-solved-problem"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Process Supervision: Solved Problem</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-12-29T21:41:00+00:00" itemprop="datePublished">
+        Dec 29, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><strong>TL;DR</strong>: Use <a href="http://smarden.org/runit/index.html">runit</a>; skip to
+“This is a Solved Problem” and “Additional Resources” sections at the
+end of this post.</p>
+
+<p>Recently on my twitter stream, I saw a link to
+<a href="http://stackoverflow.com/questions/3295737/how-to-start-jetty-properly">a question</a>
+on Stack Overflow about how to properly start Jetty. While the
+question is over 2.5 years old, the question stems from the common
+problem: How do I start a long running process, and <em>keep it running</em>?
+That an accepted answer is to run it under “nohup” (or screen?!) tells
+me that for some reason, this isn’t perceived as a solved problem.</p>
+
+<p>In my opinion, process supervision <em>is</em> a solved problem. However,
+this wheel keeps getting reinvented, or reimplemented with solutions
+that are not easily manageable or scalable. In this post, I will
+clarify some terminology, describe commonly understood goals of
+process supervision, explore some of the common approaches, and how
+they don’t meet those goals, and finally explain why I feel this is a
+solved problem.</p>
+
+<p><em>Note</em> This is a Unix/Linux centric post. Windows has its own
+  methods for running services, but the problem is definitely solved
+  there too; Microsoft gave developers and administrators APIs that
+  seem to be commonly used.</p>
+
+<h1 id="process-supervision-is-not-service-management">Process Supervision is Not Service Management</h1>
+
+<p>What exactly is process supervision?</p>
+
+<p>One of the reasons for running servers is to provide a service of some
+kind. That is, an application that provides business value. A service
+is made up of one or more running processes on computer systems
+somewhere. Those processes are typically long-lived running daemons.</p>
+
+<p>Process supervision is simply the concept of starting a daemon and
+keeping it running.</p>
+
+<p>Note that this is <em>not</em> the same as more general service management.
+That may imply multiple services, which may be running on separate
+physical or virtual servers in a distributed system. That is outside
+the scope of this post.</p>
+
+<p>This is also <em>not</em> service monitoring, a la graphing (munin, graphite)
+and/or alerting (nagios, sensu). That is also outside the scope of
+this post.</p>
+
+<h1 id="goals-and-benefits-of-process-supervision">Goals and Benefits of Process Supervision</h1>
+
+<p>The
+<a href="http://en.wikipedia.org/wiki/Process_supervision">Wikipedia page on Process Supervision</a>
+describe its benefits as follows:</p>
+
+<ul>
+  <li>Ability to restart services which have failed</li>
+  <li>The fact that it does not require the use of “pidfiles”</li>
+  <li>Clean process state</li>
+  <li>Reliable logging, because the master process can capture the stdout/stderr of the service process and route it to a log</li>
+  <li>Faster (concurrent) and ability to start up and stop</li>
+</ul>
+
+<p>To this, I add:</p>
+
+<ul>
+  <li>Manage processes with Unix signals</li>
+  <li>Simple setup that is configuration management-friendly (I’m obviously
+<a href="http://opscode.com/chef">biased</a>)</li>
+  <li>Dependency management between services on the same machine</li>
+</ul>
+
+<p>For sake of argument, these combined lists of goals and benefits are
+my criteria for a process supversion system in this post.</p>
+
+<p><strong>Spoiler alert</strong>: <a href="http://smarden.org/runit/benefits.html">runit</a>
+covers all of these, as does
+<a href="http://skarnet.org/software/s6/why.html">s6</a>.</p>
+
+<h1 id="common-approaches">Common Approaches</h1>
+
+<p>I’m going to talk about some approaches to process supervision, and
+how they don’t meet the criteria above. This won’t be comprehensive. I
+want to illustrate the highlights.</p>
+
+<h2 id="nohup">Nohup</h2>
+
+<p>First, the approach mentioned in the StackOverflow answer: “nohup.”
+The “nohup” command will “run a command immune to hangups, with output
+to a non-tty.” This typically involves logging into a system and
+manually invoking the command, such as:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>nohup jar -jar start.jar
+</code></pre></div></div>
+
+<p>This doesn’t provide the ability to restart if it fails. The process
+state is contaminated with whatever the user has in their login shell
+profile(s). It will log to “nohup.out” by default, though it can be
+redirected to another file. It’s pretty safe to say that in my opinion
+that this fails the criteria above, and should not be used for long
+running processes, especially those as important as running your Java
+application.</p>
+
+<h2 id="terminal-multiplexers">Terminal Multiplexers</h2>
+
+<p>Next up, a common approach for running process is to start up screen
+(or tmux), and let them run in the foreground. Screen and tmux are
+terminal multiplexers. That is, they are “full-screen window
+manager[s] that multiplex a physical terminal between several
+processes.” These are great tools, and
+<a href="https://jtimberman.housepub.org/blog/2012/01/28/iterm2-with-tmux/">I use tmux</a>
+for other reasons. However, this fails the criteria for the same
+reasons as nohup. Additionally, automating a process running in screen
+is not a simple task that can be repeated reliably.</p>
+
+<h2 id="sysvbsd-init">SysV/BSD Init</h2>
+
+<p>Most commonly, process management (and not supervision) is handled on
+Unix/Linux systems by plain ol’ SysV/BSD
+“<a href="http://en.wikipedia.org/wiki/Init">init</a>.” These obviously fail to
+meet the criteria above, because two new(er) systems,
+“<a href="http://upstart.ubuntu.com/">upstart</a>” and
+“<a href="http://www.freedesktop.org/wiki/Software/systemd">systemd</a>” have
+been written to address the problems. That said, “init” fails pretty
+much all the criteria:</p>
+
+<ol>
+  <li>No ability to restart services which have failed.</li>
+  <li>One of the biggest problems is handling of “pidfiles.”</li>
+  <li>Process state is theoretically clean, but then realize the average
+init script sources at least two different shell scripts for helper
+functions and environment variables, nevermind homegrown scripts that
+might read in user shell settings, too.</li>
+  <li>The best one can hope for in logging is that the process writes to
+syslog, because many init scripts redirect log output in different,
+non-portable ways.</li>
+  <li>Init is 100% sequential startup, no concurrency: “/etc/rc2.d/S*”</li>
+  <li>Sure, you can send signals to the process, but most init scripts
+don’t support more than “reload” or “restart,” so you’re left on your
+own with picking up the pieces manually.</li>
+  <li>Configuration management is easy, right? Just “ensure running” or
+“action :start” - except let’s not forget the “/etc/sysconfig” or
+“/etc/default” that sets more configuration. And that the package
+manager might have started it for you before you’re ready.</li>
+  <li>Okay, I’ll give you this. As long as the sequential ordering of the
+init scripts is all correct to meet the dependencies.</li>
+</ol>
+
+<p>Also, I have a personal pet peeve about init script complexity,
+inconsistency and non-portability between distributions of Linux, let
+alone Unix. I could (and probably will) write a post about that. For a
+taste, see <a href="http://tickets.opscode.com/browse/CHEF-3774">CHEF-3774</a>.</p>
+
+<p><strong>Note</strong>: I’m generalizing both SysV and BSD here. I admit I don’t have
+extensive experience with BSD systems, but my observation is it fails
+in very similar ways to SysV.</p>
+
+<h2 id="systemdupstart">Systemd/Upstart</h2>
+
+<p>The newer init-replacement systems, systemd and upstart are worth
+their own section, though I’ll be brief. Other people have
+<a href="http://blog.mywarwithentropy.com/2010/10/upstart-better-init-or-more-painful-one.html">posted</a>
+<a href="http://monolight.cc/2011/05/the-systemd-fallacy/">about</a> these, and
+they’re pretty well covered on the
+<a href="http://skarnet.org/software/s6/why.html">s6 comparison</a>.</p>
+
+<p>Mainly, I see both of these as reinventing the solution that follows.
+However, a couple points I’d like to make:</p>
+
+<ol>
+  <li>Both systems are primarily focused on desktop systems, rather than
+server systems. This is mostly evident in their use of D-Bus
+(<em>Desktop</em> bus), goals of faster boot time, and that their roots are
+in primarily desktop-oriented Linux distributions (Fedora and Ubuntu).</li>
+  <li>They both completely replace init, which isn’t necessarily bad.
+However, they both operate differently from init, and each other, thus
+being a non-portable major difference between Linux distributions.</li>
+</ol>
+
+<h2 id="other-process-supervision-systems">Other Process Supervision Systems</h2>
+
+<p>There are a lot of process supervision systems out there. In no
+particular order, an incomplete list:</p>
+
+<ul>
+  <li><a href="https://github.com/arya/bluepill">Bluepill</a></li>
+  <li><a href="http://godrb.com/">God</a></li>
+  <li><a href="http://ddollar.github.com/foreman/">Foreman</a> (not to be confused
+with <a href="http://theforeman.org/">The Foreman</a>)</li>
+  <li><a href="http://supervisord.org/">Supervisor</a></li>
+  <li><a href="http://mmonit.com/monit/">Monit</a></li>
+</ul>
+
+<p>I have varying degrees of experience with all of these. I have written
+<a href="http://community.opscode.com/cookbooks/bluepill">significant</a>
+<a href="http://community.opscode.com/cookbooks/god">amounts</a> of automation
+code for operating some of them.</p>
+
+<p>I think that with perhaps the exception of Monit(*), they are redundant
+and unnecessary.</p>
+
+<p>(*): I don’t have as much experience with Monit as the others, and it
+seems to have a lot of nice additional features. I’ve also heard
+<a href="https://twitter.com/nrr/status/293564015827894272">it goes well</a> with
+my favorite solution.</p>
+
+<h1 id="this-is-a-solved-problem">This Is a Solved Problem</h1>
+
+<p>Earlier I mentioned <a href="http://smarden.org/runit/">runit</a> meets all the
+criteria I listed above. In my opinion, it is the solution to the
+process supervision problem. While the
+<a href="http://smarden.org/runit/benefits.html">runit website</a> itself lists
+its benefits, it gets a nod from the
+<a href="http://skarnet.org/software/s6/why.html">s6 project</a>, too. The
+underlying solution is actually the foundation both runit and s6 build
+on: <a href="http://cr.yp.to/daemontools.html">Dan J Bernstein’s daemontools</a>.
+The
+<a href="http://www.skarnet.org/software/skalibs/djblegacy.html">merits of DJB and daemontools</a>
+are <em>very</em> well stated by the author of s6. I strongly recommend
+reading it, as he sums up my thoughts about DJB, too. It is worth
+noting that I do like s6 itself, but it isn’t currently packaged
+anywhere and adheres fairly strictly to the “slash package”
+convention, which isn’t compatible with the more popular
+<a href="http://www.pathname.com/fhs/">Filesystem Hierarchy Standard</a>.</p>
+
+<p>Anyway, the real point of this post is to talk about why I like runit.
+I think the best way to explain it is to talk about how it meets the
+criteria above.</p>
+
+<h3 id="restart-failed-services">Restart Failed Services</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">runsv</code> program
+<a href="http://smarden.org/runit/benefits.html#supervision">supervises services</a>,
+and will restart them if they fail. While it doesn’t provide any
+notification that the service failed, other than possibly writing to
+the log, this means that if a configuration issue caused a service to
+fail, it will automatically start when the configuration file is
+corrected.</p>
+
+<h3 id="no-pid-files">No PID files</h3>
+
+<p>Each service managed by <code class="language-plaintext highlighter-rouge">runsv</code> has a “service directory” where all
+its files are kept. Here, a “supervise” directory is managed by runsv,
+and a “pid” file containing the running PID is stored. However this
+isn’t the same as the pidfile management used in init scripts, and it
+means program authors don’t have to worry about managing a pidfile.</p>
+
+<h3 id="clean-process-state">Clean Process State</h3>
+
+<p>Runit’s benefits page
+<a href="http://smarden.org/runit/benefits.html#state">describes how</a> it
+guarantees clean process state. I won’t repeat it here.</p>
+
+<h3 id="reliable-logging">Reliable Logging</h3>
+
+<p>Likewise, Runit’s benefits page describes how it provides
+<a href="http://smarden.org/runit/benefits.html#log">reliable logging</a>.</p>
+
+<h3 id="parallel-startstop">Parallel Start/Stop</h3>
+
+<p>One of the goals and benefits lauded by systemd and upstart is that
+they reduce system boot time because various services can be started
+in parallel. Runit also starts up all the services it manages in
+parallel. More about this under dependency management, too.</p>
+
+<h3 id="manage-processes-with-unix-signals">Manage Processes (with Unix Signals)</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">sv</code> <a href="http://smarden.org/runit/sv.8.html">program</a> is used to send
+signals to services, and for general management of the services. It is
+used to start, stop and restart services. It also implements a number of
+commands that can be used for signals like TERM, CONT, USR1. <code class="language-plaintext highlighter-rouge">sv</code> also
+includes “LSB-init” compatibility, so the binary can be linked to
+<code class="language-plaintext highlighter-rouge">/etc/init.d/service-name</code> so “init style” commands can be used:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo /etc/init.d/service-name status
+sudo /etc/init.d/service-name restart
+</code></pre></div></div>
+
+<p>And so forth.</p>
+
+<h3 id="simple-setup-configuration-management-friendly">Simple Setup, Configuration Management Friendly</h3>
+
+<p>One of the benefits listed is that runit is
+<a href="http://smarden.org/runit/benefits.html#packaging">packaging friendly</a>.
+This is interesting because that also makes it configuration
+management friendly. Setting up a new service under runit is
+fairly simple:</p>
+
+<ol>
+  <li>Create a “service directory” for the service.</li>
+  <li>Write a “run” script that will start the service.</li>
+  <li>Create a symbolic link from the service directory to the directory
+of supervised services.</li>
+</ol>
+
+<p>As an example, suppose we want to run a git daemon. By convention,
+we’ll create the service directory in <code class="language-plaintext highlighter-rouge">/etc/sv</code>, and the supervised
+services are linked in <code class="language-plaintext highlighter-rouge">/etc/service</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo mkdir /etc/sv/git-daemon
+sudo vi /etc/sv/git-daemon/run
+sudo chmod 0755 /etc/sv/git-daemon/run
+sudo ln -s /etc/sv/git-daemon /etc/service
+</code></pre></div></div>
+
+<p>The run script may look like this
+(<a href="http://smarden.org/runit/chpst.8.html">chpst</a> is a program that
+comes with runit that changes the process state, such as the user it
+runs as):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
+exec 2&gt;&amp;1
+exec chpst -ugitdaemon \
+  "$(git --exec-path)"/git-daemon --verbose --reuseaddr \
+    --base-path=/var/cache /var/cache/git
+</code></pre></div></div>
+
+<p>Within a few seconds, the git daemon will be running:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root      6236  0.0  0.0    164     4 ?        Ss   19:03   0:00 runsv git-daemon
+119      12093  0.0  0.0  11460   812 ?        S    23:46   0:00 /usr/lib/git-core/git-daemon --verbose --reuseaddr --base-path=/var/cache /var/cache/git
+</code></pre></div></div>
+
+<p>The <a href="http://smarden.org/runit/faq.html">documentation</a> contains a
+lot more information and usesp</p>
+
+<p><strong>Note</strong>: As evidence that this is packaging friendly, this is
+  provided by the very simple <code class="language-plaintext highlighter-rouge">git-daemon-run</code> package on
+  <a href="http://packages.debian.org/search?keywords=git-daemon-run">Debian</a>
+  and
+  <a href="http://packages.ubuntu.com/search?keywords=git-daemon-run">Ubuntu</a>.</p>
+
+<h3 id="dependency-management">Dependency Management</h3>
+
+<p>Many services require that other services are available before they
+can start. A common example is that the database filesystem must be
+mounted before the database can be started.</p>
+
+<p>Depending on the services, this can be addressed simply by <code class="language-plaintext highlighter-rouge">runsv</code>
+restarting services that fail. For example, if the startup of the
+database fails because its file system isn’t mounted and the process
+exits with a return code greater than 0, then perhaps restarting will
+eventually work once the filesystem is mounted. Of course, this is an
+oversimplified naive example.</p>
+
+<p>The runit <a href="http://smarden.org/runit/faq.html#depends">FAQ</a> addresses
+this issue by use of the program <code class="language-plaintext highlighter-rouge">sv</code>, mentioned earlier. Simply put,
+use the <code class="language-plaintext highlighter-rouge">sv start</code> command on the required service.</p>
+
+<h2 id="a-few-notes">A Few Notes</h2>
+
+<p>I’ve used runit for a few years now. We used it at HJK Solutions to
+manage all system and application services that weren’t packaged with
+an init script. We use it at Opscode to manage all the services that
+run <a href="http://opscode.com/private-chef">Opscode Private Chef</a>.</p>
+
+<ol>
+  <li>Manage services that run in the foreground. If a service doesn’t
+support running in the foreground, you’ll have a bad time with it in
+runit, as <code class="language-plaintext highlighter-rouge">runsv</code> cannot supervise it.</li>
+  <li>Use <a href="http://smarden.org/runit/svlogd.8.html">svlogd</a> to capture log
+output. It automatically rotates the log files, and can capture both
+STDOUT and STDERR. It can also be configured (see the man page).</li>
+  <li>The author of runit is also the package maintainer for
+Debian/Ubuntu. This means runit works extremely well on these
+distributions.</li>
+  <li>I don’t replace init with runit, so I can’t speak to that.</li>
+  <li><a href="https://twitter.com/ianmeyer">Ian Meyer</a> maintains an
+<a href="https://github.com/imeyer/runit-rpm">RPM spec</a> for runit packages
+that work well. It will be included in Opscode’s
+<a href="http://community.opscode.com/cookbooks/runit">runit cookbook</a>
+<a href="http://tickets.opscode.com/browse/COOK-2164">soon</a>.</li>
+  <li>If you use Chef, use Opscode’s
+<a href="http://community.opscode.com/cookbooks/runit">runit cookbook</a>. It
+will <a href="http://tickets.opscode.com/browse/CHEF-154">soon</a> have a
+resource/provider for managing runit services, instead of the definition.</li>
+</ol>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Use runit.</p>
+
+<p>But not just because I said so. Use it because it meets the criteria
+for a process supervision system, and it builds on the foundation
+pioneered by an excellent
+<a href="www.skarnet.org/software/skalibs/djblegacy.html">software engineer</a>.</p>
+
+<p>After all, I’m not <a href="http://rubyists.github.com/2011/05/02/runit-for-ruby-and-everything-else.html">the only one who thinks so</a>.</p>
+
+<h1 id="additional-resources">Additional Resources</h1>
+
+<ul>
+  <li><a href="http://skarnet.org/software/s6/">s6</a> - by Laurent Bercot</li>
+  <li><a href="http://smarden.org/runit/">runit</a> - by Gerrit Pape</li>
+  <li><a href="http://cr.yp.to/daemontools.html">daemontools</a> - by Dan J Bernstein</li>
+  <li><a href="http://rubyists.github.com/2011/05/02/runit-for-ruby-and-everything-else.html">Runit for Ruby (and everything else)</a></li>
+  <li><a href="http://community.opscode.com/cookbooks/runit">runit cookbook for Chef</a>
+(nice changes coming in
+<a href="http://tickets.opscode.com/browse/CHEF-154">CHEF-154</a>, and
+<a href="http://tickets.opscode.com/browse/COOK-2164">COOK-2164</a> too!)</li>
+</ul>
+
+  </div><a class="u-url" href="/blog/2012/12/29/process-supervision-solved-problem" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>

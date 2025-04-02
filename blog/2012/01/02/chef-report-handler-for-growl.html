@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Chef Report Handler for Growl | jtimberman’s blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Chef Report Handler for Growl" />
+<meta name="author" content="Joshua Timberman" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A few weeks ago, I listened to the Changelog Podcast episode featuring Chris Forsythe, lead of the Growl project. I actually don’t^Wdidn’t use Growl for a long time, because I really disliked notifications of any kind, as they are distracting. However, I do appreciate the project, and supporting them by purchasing Growl on the App Store seemed totally reasonable." />
+<meta property="og:description" content="A few weeks ago, I listened to the Changelog Podcast episode featuring Chris Forsythe, lead of the Growl project. I actually don’t^Wdidn’t use Growl for a long time, because I really disliked notifications of any kind, as they are distracting. However, I do appreciate the project, and supporting them by purchasing Growl on the App Store seemed totally reasonable." />
+<link rel="canonical" href="/blog/2012/01/02/chef-report-handler-for-growl" />
+<meta property="og:url" content="/blog/2012/01/02/chef-report-handler-for-growl" />
+<meta property="og:site_name" content="jtimberman’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2012-01-02T20:37:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Chef Report Handler for Growl" />
+<script type="application/ld+json">
+{"author":{"@type":"Person","name":"Joshua Timberman"},"description":"A few weeks ago, I listened to the Changelog Podcast episode featuring Chris Forsythe, lead of the Growl project. I actually don’t^Wdidn’t use Growl for a long time, because I really disliked notifications of any kind, as they are distracting. However, I do appreciate the project, and supporting them by purchasing Growl on the App Store seemed totally reasonable.","url":"/blog/2012/01/02/chef-report-handler-for-growl","headline":"Chef Report Handler for Growl","@type":"BlogPosting","dateModified":"2012-01-02T20:37:00+00:00","datePublished":"2012-01-02T20:37:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"/blog/2012/01/02/chef-report-handler-for-growl"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="/feed.xml" title="jtimberman's blog" /><script async src="https://www.googletagmanager.com/gtag/js?id=UA-26031299-1"></script>
+<script>
+  window['ga-disable-UA-26031299-1'] = window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26031299-1');
+</script>
+
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">jtimberman&#39;s blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Chef Report Handler for Growl</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2012-01-02T20:37:00+00:00" itemprop="datePublished">
+        Jan 2, 2012
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>A few weeks ago, I listened to the
+<a href="http://thechangelog.com/post/11317828888/episode-0-6-8-growl-and-open-source-in-the-app-store-wit">Changelog Podcast</a>
+episode featuring Chris Forsythe, lead of the Growl project. I
+actually don’t^Wdidn’t use Growl for a long time, because I really
+disliked notifications of any kind, as they are distracting. However,
+I do appreciate the project, and supporting them by purchasing Growl
+on the App Store seemed totally reasonable.</p>
+
+<p>Of course, buying the app means it was installed on the spot. I always
+resisted it in the past because it was bundled with so many apps, but
+I don’t want unsolicited software to show up on my computer. Now, it
+seemed a bit more natural, and I made a few configuration tweaks (I
+should put those into Chef…). I’m actually happy to use it now,
+especially since it has a nice network accessible API.</p>
+
+<h1 id="growlnotify">Growlnotify</h1>
+
+<p>Shortly after I started using Growl on my work system, I looked into
+ways I could get notifications fired off from the command-line after
+long running processes finished. In particular, I wanted to get a
+notification that <code class="language-plaintext highlighter-rouge">knife ec2 server create</code> was done. I found the
+<code class="language-plaintext highlighter-rouge">growlnotify</code> program, which is available via
+<a href="https://github.com/mxcl/homebrew">homebrew</a>. This is quite a nifty
+tool, and I set it to use immediately, doing things like this:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>knife ec2 server create <span class="se">\</span>
+  <span class="nt">-f</span> m1.small <span class="nt">-I</span> <span class="nv">$lucid_small</span> <span class="nt">-x</span> ubuntu <span class="se">\</span>
+  <span class="nt">-r</span> <span class="s1">'role[base],role[webserver]'</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+growlnotify <span class="nt">-m</span> <span class="s2">"Finished launching 1 instance"</span> <span class="o">||</span> <span class="se">\</span>
+growlnotify <span class="nt">-m</span> <span class="s2">"failed to launch instance"</span>
+</code></pre></div></div>
+
+<p>I could kick off the server creation, switch focus to another
+workspace, and then know via growl if the instance was created.</p>
+
+<h1 id="chef-handler">Chef Handler</h1>
+
+<p>As many know, I
+<a href="https://jtimberman.housepub.org/blog/2011/04/03/managing-my-workstations-with-chef/">manage my workstations with Chef</a>.
+Chef has a pretty cool
+<a href="http://wiki.opscode.com/display/chef/Exception+and+Report+Handlers">exception and report handler API</a>
+that has a lot of flexibility. I thought it would be fun to throw
+together a simple report handler that would send a growl notification
+after a Chef run. In this case, it will report the elapsed time of the
+run if it was successful, or report an exception if it failed.</p>
+
+<p>Using the handler is pretty straightforward. Install the
+<code class="language-plaintext highlighter-rouge">chef-handler-growl</code> Gem, then configure chef-client (or solo).</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s2">"chef/handler/growl"</span>
+<span class="n">report_handlers</span> <span class="o">&lt;&lt;</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Handler</span><span class="o">::</span><span class="no">Growl</span><span class="p">.</span><span class="nf">new</span>
+<span class="n">exception_handlers</span> <span class="o">&lt;&lt;</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Handler</span><span class="o">::</span><span class="no">Growl</span><span class="p">.</span><span class="nf">new</span>
+</code></pre></div></div>
+
+<p>Then run Chef, and see something like this:</p>
+
+<p><img src="https://img.skitch.com/20120103-emxnsfht3557xjcp4rshxcufka.png" alt="Chef Handler Growl" /></p>
+
+<p>The handler is available as a
+<a href="http://rubygems.org/gems/chef-handler-growl">RubyGem</a>. You can also
+view the <a href="https://github.com/jtimberman/chef-handler-growl">source</a>. I
+created issues on the GitHub project for the two items on the roadmap, too.</p>
+
+  </div><a class="u-url" href="/blog/2012/01/02/chef-report-handler-for-growl" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/%20/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">jtimberman&#39;s blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Copyright &copy; Joshua Timberman</li><li><a class="u-email" href="mailto:blog@housepub.org">blog@housepub.org</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a rel="me" href="https://github.com/jekyll" title="jekyll"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/jekyllrb" title="jekyllrb"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Operations, Automation, Deployment, Workflows, DevOps; see my About page for ways you can support me.</p>
+      </div>
+    </div>
+
+    <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/"><img alt="Creative
+      Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/3.0/us/80x15.png" /></a> This
+    work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/us/">Creative Commons
+      Attribution-ShareAlike 3.0 United States License</a>.
+  </div>
+
+</footer></body>
+
+</html>
